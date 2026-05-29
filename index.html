@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Skjut dom i huvudet - Material</title>
+  <title>Skjut dom i huvudet - Retroterminal</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -198,7 +198,7 @@
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
             <div>
               <p id="headerSubText" class="text-sm tracking-widest opacity-80 uppercase font-mono">
-                [ LADDAR SYSTEM... ]
+                [ LADDAR SYSTEMINTRUKTION... ]
               </p>
               <h1 class="text-3xl sm:text-5xl font-bold tracking-wider uppercase text-glow flex items-center gap-2">
                 <span id="headerMainText">LADDAR TITEL...</span>
@@ -237,7 +237,7 @@
             <div>
               <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-bold tracking-wider text-glow flex items-center gap-2">
-                  <span>📂 DEKLASSIFICERAT ARKIV</span>
+                  <span>📂 DEKLASSIFICERADE ARKIV</span>
                 </h2>
                 <!-- Local Filter Search -->
                 <input type="text" id="archiveSearch" oninput="filterArchives()" placeholder="Sök i arkivet..." class="bg-black text-[var(--primary)] border border-[var(--primary)] px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--primary)] w-48 font-mono">
@@ -246,7 +246,7 @@
               <!-- Main Dynamic Files Area -->
               <div id="fileContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[50vh] lg:max-h-[60vh] overflow-y-auto pr-2">
                 <!-- Loaded via JS -->
-                <p class="animate-pulse">Läser in läkta dokument...</p>
+                <p class="animate-pulse">Läser in krypterade dokument...</p>
               </div>
             </div>
 
@@ -387,7 +387,7 @@
             </div>
 
             <div>
-              <label class="block text-sm font-bold mb-1">BESKRIVNING *</label>
+              <label class="block text-sm font-bold mb-1">BESKRIVNING / MILITÄR INFORMATION *</label>
               <textarea id="docDesc" required placeholder="Skriv en kort sammanfattning av filens innehåll eller dess roll i zombie-apokalypsen..." rows="3" class="w-full bg-black text-[var(--primary)] border border-[var(--primary)] p-2 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"></textarea>
             </div>
 
@@ -431,7 +431,7 @@
       BRANCH: "main",
       
       // Sökväg till din tips-textfil på GitHub (Varje ny rad = ett nytt speltips i terminalen)
-      TIPS_URL: "https://raw.githubusercontent.com/Antiprenor/Antiprenor/main/archives/tips.txt",
+      TIPS_URL: "https://raw.githubusercontent.com/Antiprenor/Antiprenor/main/zombietips.txt",
       
       // Sökväg till JSON-dokumentdatabasen på GitHub
       DATABASE_URL: "https://raw.githubusercontent.com/Antiprenor/Antiprenor/main/archives/files.json",
@@ -442,7 +442,7 @@
       UPLOAD_IMG_DIR: "archives/images/",
 
       // 3. TEXTER OCH RUBRIKER PÅ SKÄRMEN
-      HEADER_SUB: "[ N0:A BACKUP-NÄTVERK //  ]",
+      HEADER_SUB: "[ N0:A HAXXADE DOKUMENT //  curtesy of: APOCALYPSEN0WHERE. GBG FTW]",
       HEADER_MAIN: "SKJUT DOM I HUVUDET - MATERIAL",
 
       // 4. INBYGGDA RESERVTIPS (Används om den externa tips.txt-filen inte kan hämtas)
@@ -628,6 +628,7 @@
       logSystem(crtScreen.classList.contains('power-off') ? "SKÄRM STRÖMLÖS." : "STRÖM ÅTERSTÄLLD.");
     }
 
+    // System Log
     function logSystem(message) {
       const log = document.getElementById('systemLog');
       const timestamp = new Date().toLocaleTimeString();
