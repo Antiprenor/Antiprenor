@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Skjut dom i huvudet - MATERIAL</title>
+  <title>Skjut dom i huvudet - Retroterminal</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -449,7 +449,7 @@
         "Lita inte på militära nödsändningar. De är oftast förinspelade fällor.",
         "Zonerna fryser fort under vintern. Konserver och kaminbränsle är mer värdefullt än ammunition.",
         "Symptom på infektion visar sig inom 4 timmar. Feber och röda ådror under huden är slutet.",
-        "Huvudet är den svaga punkten. Missar du skottet dör du."
+        "Huvudet är den weaka punkten. Missar du skottet dör du."
       ]
     };
 
@@ -724,28 +724,42 @@
     let tipsList = [...CONFIG.DEFAULT_TIPS];
 
     async function loadTipsFromGitHub() {
-      try {
-        // Lägger till cache-buster (?t=...) för att kringgå GitHubs raw-cache
-        const response = await fetch(`${CONFIG.TIPS_URL}?t=${Date.now()}`);
-        if (response.ok) {
-          const text = await response.text();
-          // Splitta raderna på ett säkert sätt för både Windows (\r\n) och Unix (\n) radbrytningar
-          const parsedTips = text.split(/\r?\n/)
-                                 .map(line => line.trim())
-                                 .filter(line => line.length > 0);
-          
-          if (parsedTips.length > 0) {
-            tipsList = parsedTips;
-            logSystem(`Anslutning upprättad till zombietips.txt! ${tipsList.length} tips inladdade.`);
-          } else {
-            logSystem("Varning: zombietips.txt var tom. Använder inbyggda krisrekommendationer.");
+      // Skapa en array med sökvägar att testa. Relativ sökväg först (bäst på GitHub Pages), sedan absolut!
+      const urlsToTry = [
+        `zombietips.txt?t=${Date.now()}`,
+        `${CONFIG.TIPS_URL}?t=${Date.now()}`
+      ];
+      
+      let fetchedText = null;
+      
+      for (const url of urlsToTry) {
+        try {
+          const response = await fetch(url);
+          if (response.ok) {
+            fetchedText = await response.text();
+            logSystem(`Anslutning upprättad till zombietips.txt!`);
+            break;
           }
-        } else {
-          logSystem(`Kunde inte hämta zombietips.txt (Status: ${response.status}). Kontrollera om repot är privat.`);
+        } catch (err) {
+          // Fortsätt testa nästa länk om denna misslyckas
         }
-      } catch (err) {
-        logSystem("Fältsändning offline. Laddar inbyggda rekommendationer.");
       }
+
+      if (fetchedText) {
+        const parsedTips = fetchedText.split(/\r?\n/)
+                               .map(line => line.trim())
+                               .filter(line => line.length > 0);
+        
+        if (parsedTips.length > 0) {
+          tipsList = parsedTips;
+          logSystem(`Framgångsrikt synkroniserat ${tipsList.length} speltips.`);
+        } else {
+          logSystem("Varning: zombietips.txt hittades men var tom. Laddar reservrekommendationer.");
+        }
+      } else {
+        logSystem("Fältsändning offline (zombietips.txt kunde inte hittas). Laddar inbyggda rekommendationer.");
+      }
+      
       displayRandomTip();
     }
 
@@ -819,21 +833,33 @@
 
     // Attempt to load index from Github
     async function loadArchivesFromGitHub() {
-      const jsonUrl = CONFIG.DATABASE_URL;
-      try {
-        const response = await fetch(jsonUrl);
-        if (response.ok) {
-          const remoteData = await response.json();
-          if (Array.isArray(remoteData) && remoteData.length > 0) {
-            currentArchives = remoteData;
-            logSystem("Externa dokumentdatabaser anslutna framgångsrikt.");
+      // Försök hämta databasen relativt först (bäst på GitHub Pages), sedan absolut via rå CDN!
+      const urlsToTry = [
+        `archives/files.json?t=${Date.now()}`,
+        `${CONFIG.DATABASE_URL}?t=${Date.now()}`
+      ];
+      
+      let fetchedData = null;
+      
+      for (const url of urlsToTry) {
+        try {
+          const response = await fetch(url);
+          if (response.ok) {
+            fetchedData = await response.json();
+            break;
           }
-        } else {
-          logSystem("Kunde inte nå extern databas. Använder lokalt sparade reservdokument.");
+        } catch (err) {
+          // Försök nästa om fel uppstår
         }
-      } catch (err) {
-        logSystem("Kunde inte ansluta till GitHub Pages. Startar i offline-läge.");
       }
+
+      if (fetchedData && Array.isArray(fetchedData) && fetchedData.length > 0) {
+        currentArchives = fetchedData;
+        logSystem("Externa dokumentdatabaser synkroniserade.");
+      } else {
+        logSystem("Kunde inte nå extern dokumentdatabas. Laddar inbyggda krisdokument.");
+      }
+      
       renderArchives();
     }
 
