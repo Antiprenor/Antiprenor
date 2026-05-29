@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Skjut dom i huvudet - Retroterminal</title>
+  <title>Skjut dom i huvudet - MATERIAL</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -14,11 +14,11 @@
   <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 
   <style>
-    /* Global Retro terminal styling */
+    /* Global Retro terminal styling - Fastlåst till Amber */
     :root {
-      --primary: #33ff66;
-      --glow: rgba(51, 255, 102, 0.45);
-      --bg-dark: #040804;
+      --primary: #ffb000;
+      --glow: rgba(255, 176, 0, 0.45);
+      --bg-dark: #080500;
       --terminal-font: 'VT323', monospace;
     }
 
@@ -170,7 +170,7 @@
 
     /* File grid custom border */
     .file-card {
-      background: rgba(4, 15, 4, 0.8);
+      background: rgba(15, 8, 0, 0.8);
       border: 1px dashed var(--primary);
       transition: all 0.2s;
     }
@@ -220,12 +220,10 @@
             </div>
           </div>
 
-          <!-- Color theme switchboard -->
+          <!-- Decorative Color Status Dashboard (Amber Monochrome) -->
           <div class="mt-4 flex flex-wrap gap-2 items-center text-sm">
-            <span class="opacity-70">FÄRGSCHEMA:</span>
-            <button onclick="changeTheme('green')" class="px-3 py-1 bg-black text-[#33ff66] border border-[#33ff66] hover:bg-[#33ff66] hover:text-black font-bold">FOSFOR (GRÖN)</button>
-            <button onclick="changeTheme('amber')" class="px-3 py-1 bg-black text-[#ffb000] border border-[#ffb000] hover:bg-[#ffb000] hover:text-black font-bold">AMBER (GUL)</button>
-            <button onclick="changeTheme('cyan')" class="px-3 py-1 bg-black text-[#00e5ff] border border-[#00e5ff] hover:bg-[#00e5ff] hover:text-black font-bold">CYAN (BLÅ)</button>
+            <span class="opacity-70">SYSTEMMONITOR:</span>
+            <span class="text-[#ffb000] border border-[#ffb000] px-2 py-0.5 bg-black/50 font-bold tracking-widest">MONOKROM [AMBER-SÄKRAD STYRENHET] AKTIV</span>
           </div>
         </header>
 
@@ -250,7 +248,7 @@
               </div>
             </div>
 
-            <!-- RPG Tips ticker (Fetches dynamically from tips.txt) -->
+            <!-- RPG Tips ticker (Fetches dynamically from zombietips.txt) -->
             <div class="mt-4 p-2 bg-black border border-dashed border-[var(--primary)] text-sm opacity-80 flex items-center justify-between">
               <div class="truncate mr-2">
                 <span class="font-bold text-glow flex-shrink-0">[MEDDELANDE #<span id="tipNum">01</span>]:</span>
@@ -442,7 +440,7 @@
       UPLOAD_IMG_DIR: "archives/images/",
 
       // 3. TEXTER OCH RUBRIKER PÅ SKÄRMEN
-      HEADER_SUB: "[ N0:A HAXXADE DOKUMENT //  curtesy of: APOCALYPSEN0WHERE. GBG FTW]",
+      HEADER_SUB: "[ N0:A HAXXADE DOKUMENT // curtesy of: APOCALYPSEN0WHERE. GBG FTW ]",
       HEADER_MAIN: "SKJUT DOM I HUVUDET - MATERIAL",
 
       // 4. INBYGGDA RESERVTIPS (Används om den externa tips.txt-filen inte kan hämtas)
@@ -574,23 +572,20 @@
 
   <!-- Script for System State and Themes -->
   <script>
-    let currentTheme = 'green';
+    // Systemet körs nu enbart i klassisk Amber-miljö
+    let currentTheme = 'amber';
     
     const themes = {
-      green: { primary: '#33ff66', glow: 'rgba(51, 255, 102, 0.45)', bg: '#040804' },
-      amber: { primary: '#ffb000', glow: 'rgba(255, 176, 0, 0.45)', bg: '#080500' },
-      cyan: { primary: '#00e5ff', glow: 'rgba(0, 229, 255, 0.45)', bg: '#00080a' }
+      amber: { primary: '#ffb000', glow: 'rgba(255, 176, 0, 0.45)', bg: '#080500' }
     };
 
     function changeTheme(themeName) {
-      currentTheme = themeName;
-      const theme = themes[themeName];
+      // Skärmen är låst till Amber för atmosfäriskt kalla-kriget skydd
+      currentTheme = 'amber';
+      const theme = themes.amber;
       document.documentElement.style.setProperty('--primary', theme.primary);
       document.documentElement.style.setProperty('--glow', theme.glow);
       document.documentElement.style.setProperty('--bg-dark', theme.bg);
-      
-      logSystem(`Skärmfärg ändrad till ${themeName.toUpperCase()}.`);
-      playBeep(600, 'sine', 0.05, 0.1);
     }
 
     function toggleScanlines() {
@@ -730,23 +725,26 @@
 
     async function loadTipsFromGitHub() {
       try {
-        const response = await fetch(CONFIG.TIPS_URL);
+        // Lägger till cache-buster (?t=...) för att kringgå GitHubs raw-cache
+        const response = await fetch(`${CONFIG.TIPS_URL}?t=${Date.now()}`);
         if (response.ok) {
           const text = await response.text();
-          // Split by newlines, trim, filter out empty rows
-          const parsedTips = text.split('\n')
+          // Splitta raderna på ett säkert sätt för både Windows (\r\n) och Unix (\n) radbrytningar
+          const parsedTips = text.split(/\r?\n/)
                                  .map(line => line.trim())
                                  .filter(line => line.length > 0);
           
           if (parsedTips.length > 0) {
             tipsList = parsedTips;
-            logSystem("Externa fältsändningstips anslutna framgångsrikt.");
+            logSystem(`Anslutning upprättad till zombietips.txt! ${tipsList.length} tips inladdade.`);
+          } else {
+            logSystem("Varning: zombietips.txt var tom. Använder inbyggda krisrekommendationer.");
           }
         } else {
-          logSystem("Kunde inte nå extern tipsfil. Använder inbyggda krisrekommendationer.");
+          logSystem(`Kunde inte hämta zombietips.txt (Status: ${response.status}). Kontrollera om repot är privat.`);
         }
       } catch (err) {
-        logSystem("Tips-databas offline. Laddar inbyggda rekommendationer.");
+        logSystem("Fältsändning offline. Laddar inbyggda rekommendationer.");
       }
       displayRandomTip();
     }
@@ -766,7 +764,7 @@
 
   <!-- File System & GitHub Integration Logic -->
   <script>
-    // Fallback/Standard-dokument i arkivet
+    // Fallback/Standard-dokument i arkivet (Färgtema uppdaterat till Amber)
     const defaultArchives = [
       {
         id: "survival-guide",
@@ -801,6 +799,9 @@
 
     // Main window loader
     window.onload = function() {
+      // Force correct amber style globally
+      changeTheme('amber');
+
       // Apply UI elements from CONFIG
       document.getElementById('headerSubText').innerText = CONFIG.HEADER_SUB;
       document.getElementById('headerMainText').innerText = CONFIG.HEADER_MAIN;
@@ -847,14 +848,15 @@
       }
 
       currentArchives.forEach(archive => {
-        const imgPath = archive.imageUrl || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23111'/><text x='50%25' y='50%25' font-family='sans-serif' font-size='10' fill='%2333ff66' dominant-baseline='middle' text-anchor='middle'>ZOMBIE FILE</text></svg>";
+        // SVG fallback färgad i Amber (#ffb000)
+        const imgPath = archive.imageUrl || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23111'/><text x='50%25' y='50%25' font-family='sans-serif' font-size='10' fill='%23ffb000' dominant-baseline='middle' text-anchor='middle'>ZOMBIE FILE</text></svg>";
         const tagsHtml = archive.tags ? archive.tags.map(t => `<span class="border border-[var(--primary)] px-1.5 py-0.2 text-[10px] mr-1">${t.toUpperCase()}</span>`).join('') : '';
 
         const card = document.createElement('div');
         card.className = "file-card p-3 flex gap-3 flex-col sm:flex-row items-start justify-between rounded";
         card.innerHTML = `
           <div class="flex-shrink-0 w-20 h-24 bg-black border border-[var(--primary)] overflow-hidden hidden sm:flex items-center justify-center">
-            <img src="${imgPath}" alt="Thumbnail" class="w-full h-full object-cover opacity-80" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'100\\' height=\\'120\\' viewBox=\\'0 0 100 120\\'><rect width=\\'100\\' height=\\'120\\' fill=\\'black\\'/><path d=\\'M20,20 L80,20 L80,100 L20,100 Z\\' stroke=\\'%233f6\\' stroke-width=\\'2\\' fill=\\'none\\'/><text x=\\'50%25\\' y=\\'50%25\\' font-family=\\'monospace\\' font-size=\\'12\\' fill=\\'%233f6\\' text-anchor=\\'middle\\'>PDF</text></svg>'">
+            <img src="${imgPath}" alt="Thumbnail" class="w-full h-full object-cover opacity-80" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'100\\' height=\\'120\\' viewBox=\\'0 0 100 120\\'><rect width=\\'100\\' height=\\'120\\' fill=\\'black\\'/><path d=\\'M20,20 L80,20 L80,100 L20,100 Z\\' stroke=\\'%23ffb000\\' stroke-width=\\'2\\' fill=\\'none\\'/><text x=\\'50%25\\' y=\\'50%25\\' font-family=\\'monospace\\' font-size=\\'12\\' fill=\\'%23ffb000\\' text-anchor=\\'middle\\'>PDF</text></svg>'">
           </div>
           <div class="flex-grow flex flex-col justify-between h-full space-y-2">
             <div>
@@ -894,14 +896,14 @@
       }
 
       filtered.forEach(archive => {
-        const imgPath = archive.imageUrl || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23111'/><text x='50%25' y='50%25' font-family='sans-serif' font-size='10' fill='%2333ff66' dominant-baseline='middle' text-anchor='middle'>ZOMBIE FILE</text></svg>";
+        const imgPath = archive.imageUrl || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23111'/><text x='50%25' y='50%25' font-family='sans-serif' font-size='10' fill='%23ffb000' dominant-baseline='middle' text-anchor='middle'>ZOMBIE FILE</text></svg>";
         const tagsHtml = archive.tags ? archive.tags.map(t => `<span class="border border-[var(--primary)] px-1.5 py-0.2 text-[10px] mr-1">${t.toUpperCase()}</span>`).join('') : '';
 
         const card = document.createElement('div');
         card.className = "file-card p-3 flex gap-3 flex-col sm:flex-row items-start justify-between rounded";
         card.innerHTML = `
           <div class="flex-shrink-0 w-20 h-24 bg-black border border-[var(--primary)] overflow-hidden hidden sm:flex items-center justify-center">
-            <img src="${imgPath}" alt="Thumbnail" class="w-full h-full object-cover opacity-80" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'100\\' height=\\'120\\' viewBox=\\'0 0 100 120\\'><rect width=\\'100\\' height=\\'120\\' fill=\\'black\\'/><path d=\\'M20,20 L80,20 L80,100 L20,100 Z\\' stroke=\\'%233f6\\' stroke-width=\\'2\\' fill=\\'none\\'/><text x=\\'50%25\\' y=\\'50%25\\' font-family=\\'monospace\\' font-size=\\'12\\' fill=\\'%233f6\\' text-anchor=\\'middle\\'>PDF</text></svg>'">
+            <img src="${imgPath}" alt="Thumbnail" class="w-full h-full object-cover opacity-80" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'100\\' height=\\'120\\' viewBox=\\'0 0 100 120\\'><rect width=\\'100\\' height=\\'120\\' fill=\\'black\\'/><path d=\\'M20,20 L80,20 L80,100 L20,100 Z\\' stroke=\\'%23ffb000\\' stroke-width=\\'2\\' fill=\\'none\\'/><text x=\\'50%25\\' y=\\'50%25\\' font-family=\\'monospace\\' font-size=\\'12\\' fill=\\'%23ffb000\\' text-anchor=\\'middle\\'>PDF</text></svg>'">
           </div>
           <div class="flex-grow flex flex-col justify-between h-full space-y-2">
             <div>
@@ -1025,7 +1027,7 @@
           let mockImgUrl = "";
           if (imgFileInput) {
             adminLog(`Laddar upp bildfil: '${imgFilename}'...`, false);
-            mockImgUrl = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100' height='100' fill='%23222'/><text x='50%25' y='50%25' font-family='sans-serif' font-size='8' fill='%2333ff66' text-anchor='middle'>BILD</text></svg>";
+            mockImgUrl = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100' height='100' fill='%23222'/><text x='50%25' y='50%25' font-family='sans-serif' font-size='8' fill='%23ffb000' text-anchor='middle'>BILD</text></svg>";
           }
 
           const newObj = {
