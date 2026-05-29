@@ -1,1542 +1,1221 @@
-```html
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NO:A // SKJUT DOM I HUVUDET</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Skjut dom i huvudet - Retroterminal</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: VT323 (Retro Terminal Font) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+
+  <style>
+    /* Global Retro terminal styling - Fastlåst till Amber */
+    :root {
+      --primary: #ffb000;
+      --glow: rgba(255, 176, 0, 0.45);
+      --bg-dark: #080500;
+      --terminal-font: 'VT323', monospace;
+    }
+
+    body {
+      background-color: #0d0d0d;
+      color: var(--primary);
+      font-family: var(--terminal-font);
+      font-size: 1.3rem;
+      letter-spacing: 1px;
+      overflow-x: hidden;
+    }
+
+    /* CRT glass curvature simulation */
+    .crt-bezel {
+      background: #1e1e1a;
+      border: 12px solid #2b2b28;
+      box-shadow: 
+        0 10px 30px rgba(0,0,0,0.8),
+        inset 0 4px 10px rgba(255,255,255,0.15),
+        inset 0 -4px 10px rgba(0,0,0,0.6);
+      border-radius: 40px;
+    }
+
+    .crt-screen-wrapper {
+      position: relative;
+      background: var(--bg-dark);
+      border-radius: 30px;
+      overflow: hidden;
+      border: 8px solid #000;
+      box-shadow: inset 0 0 80px rgba(0,0,0,0.95);
+    }
+
+    /* The actual curved screen effect using perspective and scale */
+    .crt-screen {
+      position: relative;
+      background: var(--bg-dark);
+      /* Spherical look via border radius warping and vignette */
+      border-radius: 40px / 8%;
+      transition: all 0.3s ease;
+    }
+
+    /* Screen distortion when turned on */
+    .crt-bulge {
+      transform: perspective(1000px) rotateX(1deg) rotateY(0.5deg) scale(1.01);
+    }
+
+    /* Ambient screen vignette / inner shadow */
+    .vignette {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.7) 100%);
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /* Scanline overlay */
+    .scanlines-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%, 
+        rgba(0, 0, 0, 0.3) 50%
+      );
+      background-size: 100% 4px;
+      pointer-events: none;
+      z-index: 9;
+    }
+
+    /* Phosphor screen glow */
+    .text-glow {
+      text-shadow: 0 0 4px var(--glow), 0 0 12px var(--glow);
+    }
     
-    <!-- Retrotypsnitt -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
+    .border-glow {
+      box-shadow: 0 0 10px var(--glow);
+      border-color: var(--primary);
+    }
+
+    /* CRT Power OFF effect */
+    .power-off {
+      animation: crt-turn-off 0.45s cubic-bezier(0.23, 1, 0.32, 1) forwards !important;
+    }
+
+    @keyframes crt-turn-off {
+      0% {
+        transform: scale(1, 1);
+        filter: brightness(1) contrast(1);
+        opacity: 1;
+      }
+      40% {
+        transform: scale(1, 0.005);
+        filter: brightness(3) contrast(1);
+      }
+      100% {
+        transform: scale(0, 0);
+        filter: brightness(10);
+        opacity: 0;
+      }
+    }
+
+    /* Phosphor flicker */
+    @keyframes flicker {
+      0% { opacity: 0.985; }
+      50% { opacity: 1; }
+      100% { opacity: 0.99; }
+    }
     
-    <style>
-        /* FÄRGTEMAN (ZOMBIE-APOKALYPS) */
-        :root {
-            --primary: #33ff66;
-            --primary-dim: #11aa44;
-            --primary-dark: #002200;
-            --bg: #050b06;
-            --glow: rgba(51, 255, 102, 0.35);
-            --danger: #ff3333;
-            --danger-dim: #990000;
-            --danger-glow: rgba(255, 51, 51, 0.35);
-        }
-
-        .theme-amber {
-            --primary: #ffb000;
-            --primary-dim: #cc8800;
-            --primary-dark: #221500;
-            --bg: #080500;
-            --glow: rgba(255, 176, 0, 0.35);
-        }
-
-        .theme-cyan {
-            --primary: #00e5ff;
-            --primary-dim: #0099aa;
-            --primary-dark: #001f33;
-            --bg: #00060a;
-            --glow: rgba(0, 229, 255, 0.35);
-        }
-
-        * { box-sizing: border-box; }
-
-        body {
-            background-color: var(--bg);
-            color: var(--primary);
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 17px;
-            line-height: 1.5;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            position: relative;
-            overflow-x: hidden;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        /* CRT OCH SCANLINES SKÄRMEFFEKT */
-        body::before {
-            content: " ";
-            display: block;
-            position: fixed;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
-            z-index: 9999;
-            background-size: 100% 4px, 6px 100%;
-            pointer-events: none;
-            opacity: 0.8;
-        }
-
-        .crt-vignette {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: radial-gradient(circle, transparent 60%, rgba(0,0,0,0.85) 150%);
-            pointer-events: none;
-            z-index: 9998;
-        }
-
-        /* TEXTGLÖD */
-        h1, h2, h3, p, a, span, label, input, textarea, button {
-            text-shadow: 0 0 6px var(--glow);
-        }
-
-        /* HEADER */
-        .game-title {
-            color: var(--danger);
-            font-family: 'VT323', monospace;
-            font-size: 1.8rem;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            margin: 0;
-            text-shadow: 0 0 8px rgba(255, 51, 51, 0.6);
-        }
-
-        h1 {
-            font-family: 'VT323', monospace;
-            font-size: 3rem;
-            margin: 5px 0 15px 0;
-            text-transform: uppercase;
-            border-bottom: 2px dashed var(--primary);
-            padding-bottom: 15px;
-            letter-spacing: 1px;
-        }
-
-        /* NAVIGATIONSTABBAR för terminalen */
-        .terminal-nav {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .nav-tab {
-            background: rgba(0,0,0,0.6);
-            color: var(--primary);
-            border: 2px solid var(--primary-dim);
-            padding: 8px 15px;
-            font-family: inherit;
-            cursor: pointer;
-            font-weight: bold;
-            text-transform: uppercase;
-            transition: all 0.2s;
-        }
-
-        .nav-tab:hover, .nav-tab.active-tab {
-            background: var(--primary);
-            color: var(--bg);
-            border-color: var(--primary);
-            box-shadow: 0 0 10px var(--primary);
-            text-shadow: none;
-        }
-
-        .nav-tab.danger-tab {
-            color: var(--danger);
-            border-color: var(--danger-dim);
-        }
-
-        .nav-tab.danger-tab:hover, .nav-tab.danger-tab.active-tab {
-            background: var(--danger);
-            color: #fff;
-            border-color: var(--danger);
-            box-shadow: 0 0 10px var(--danger);
-            text-shadow: none;
-        }
-
-        /* KONTROLLER */
-        .control-panel {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            border: 1px solid var(--primary-dim);
-            padding: 10px 15px;
-            margin-bottom: 25px;
-            background-color: rgba(0, 0, 0, 0.4);
-            font-size: 14px;
-        }
-
-        .theme-btn {
-            background: transparent;
-            color: var(--primary);
-            border: 1px solid var(--primary);
-            font-family: inherit;
-            padding: 2px 8px;
-            cursor: pointer;
-            text-transform: uppercase;
-        }
-
-        .theme-btn:hover, .theme-btn.active {
-            background-color: var(--primary);
-            color: var(--bg);
-            text-shadow: none;
-            box-shadow: 0 0 8px var(--primary);
-        }
-
-        /* SÖKFÄLT */
-        .search-container {
-            width: 100%;
-            margin-bottom: 30px;
-            display: flex;
-            align-items: center;
-            border: 2px solid var(--primary);
-            background-color: rgba(0, 0, 0, 0.6);
-            padding: 10px 15px;
-        }
-
-        .search-input {
-            background: transparent;
-            border: none;
-            color: var(--primary);
-            font-family: inherit;
-            font-size: 18px;
-            width: 100%;
-            outline: none;
-        }
-
-        /* BOOT-SKÄRM */
-        #boot-screen {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: var(--bg);
-            z-index: 10000;
-            padding: 30px;
-            font-family: 'Share Tech Mono', monospace;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .boot-text {
-            white-space: pre-wrap;
-            margin-bottom: 20px;
-            font-size: 18px;
-        }
-
-        .skip-btn {
-            align-self: flex-start;
-            background: transparent;
-            border: 1px solid var(--primary);
-            color: var(--primary);
-            padding: 5px 15px;
-            font-family: inherit;
-            cursor: pointer;
-            text-transform: uppercase;
-            margin-top: auto;
-        }
-
-        .skip-btn:hover {
-            background: var(--primary);
-            color: var(--bg);
-        }
-
-        /* FILARKIVET */
-        .archive-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .archive-item {
-            border: 2px solid var(--primary);
-            margin-bottom: 30px;
-            background-color: rgba(0, 0, 0, 0.3);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .archive-item.locked-item {
-            border-color: var(--danger);
-            background-color: rgba(20, 0, 0, 0.2);
-        }
-
-        @media (min-width: 600px) {
-            .archive-item { flex-direction: row; }
-        }
-
-        /* BILD-CONTAINER */
-        .image-container {
-            width: 100%;
-            height: 180px;
-            background-color: var(--primary-dark);
-            border-bottom: 2px solid var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            overflow: hidden;
-        }
-
-        .locked-item .image-container {
-            background-color: var(--danger-dim);
-            border-bottom-color: var(--danger);
-        }
-
-        @media (min-width: 600px) {
-            .image-container {
-                width: 180px;
-                height: 180px;
-                border-bottom: none;
-                border-right: 2px solid var(--primary);
-            }
-            .locked-item .image-container {
-                border-right-color: var(--danger);
-            }
-        }
-
-        .item-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            image-rendering: pixelated;
-        }
-
-        .fallback-svg {
-            width: 70px;
-            height: 70px;
-            fill: var(--primary);
-            filter: drop-shadow(0 0 5px var(--glow));
-        }
-
-        .locked-item .fallback-svg {
-            fill: var(--danger);
-            filter: drop-shadow(0 0 5px var(--danger-glow));
-        }
-
-        /* DETALJER */
-        .item-details {
-            padding: 20px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .item-title {
-            font-size: 24px;
-            margin: 0 0 8px 0;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .locked-item .item-title {
-            color: var(--danger);
-            text-shadow: 0 0 6px var(--danger-glow);
-        }
-
-        .item-description {
-            font-size: 16px;
-            color: var(--primary-dim);
-            margin: 0 0 20px 0;
-        }
-
-        .locked-item .item-description {
-            color: #b36666;
-        }
-
-        /* RETRO-KNAPP */
-        .download-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background-color: var(--primary);
-            color: var(--bg);
-            padding: 10px 20px;
-            text-decoration: none;
-            font-weight: bold;
-            text-transform: uppercase;
-            border: 2px solid var(--primary);
-            align-self: flex-start;
-            box-shadow: 4px 4px 0px var(--primary-dark);
-            transition: all 0.1s;
-            font-family: inherit;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        .download-btn:hover {
-            background-color: var(--bg);
-            color: var(--primary);
-            box-shadow: 0px 0px 0px var(--primary-dark);
-            transform: translate(4px, 4px);
-            text-shadow: none;
-        }
-
-        .download-btn.btn-locked {
-            background-color: var(--danger);
-            border-color: var(--danger);
-            color: #fff;
-            box-shadow: 4px 4px 0px #4d0000;
-        }
-
-        .download-btn.btn-locked:hover {
-            background-color: var(--bg);
-            color: var(--danger);
-            box-shadow: 0px 0px 0px #4d0000;
-            text-shadow: 0 0 6px var(--danger-glow);
-        }
-
-        /* ==========================================================================
-           ZOMBIEGENERATORN STYLING
-           ========================================================================== */
-        .generator-container {
-            border: 2px solid var(--danger);
-            background-color: rgba(15, 0, 0, 0.4);
-            padding: 25px;
-            box-shadow: 0 0 15px rgba(255, 51, 51, 0.15);
-            margin-bottom: 30px;
-        }
-
-        .generator-header {
-            color: var(--danger);
-            border-bottom: 2px solid var(--danger);
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .generator-header h2 {
-            margin: 0;
-            font-family: 'VT323', monospace;
-            font-size: 2.2rem;
-            letter-spacing: 2px;
-        }
-
-        .radar-scan-box {
-            background-color: #000;
-            border: 1px solid var(--danger-dim);
-            height: 10px;
-            margin-bottom: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .radar-bar {
-            background: linear-gradient(90deg, transparent, var(--danger), transparent);
-            width: 150px;
-            height: 100%;
-            position: absolute;
-            left: -150px;
-            animation: radar-sweep 2.5s infinite linear;
-        }
-
-        @keyframes radar-sweep {
-            0% { left: -150px; }
-            100% { left: 100%; }
-        }
-
-        /* Tactical display grid */
-        .tactical-display {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
-        }
-
-        @media (min-width: 650px) {
-            .tactical-display {
-                grid-template-columns: 3fr 2fr;
-            }
-        }
-
-        .display-screen {
-            background-color: #000;
-            border: 1px solid var(--danger);
-            padding: 20px;
-            min-height: 280px;
-            font-family: 'Share Tech Mono', monospace;
-            color: var(--danger);
-            text-shadow: 0 0 5px var(--danger-glow);
-            overflow-y: auto;
-        }
-
-        .bio-stats-box {
-            border: 1px dashed var(--danger-dim);
-            padding: 15px;
-            background: rgba(40, 0, 0, 0.2);
-        }
-
-        .stat-line {
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 1px dotted rgba(255, 51, 51, 0.2);
-            padding: 6px 0;
-            font-size: 15px;
-        }
-
-        .stat-label {
-            font-weight: bold;
-            color: #ff8888;
-        }
-
-        .stat-value {
-            color: #fff;
-        }
-
-        .gen-btn {
-            background-color: var(--danger);
-            color: #fff;
-            border: 2px solid var(--danger);
-            padding: 12px 25px;
-            font-family: inherit;
-            font-size: 18px;
-            font-weight: bold;
-            text-transform: uppercase;
-            cursor: pointer;
-            box-shadow: 0 0 10px rgba(255,51,51,0.4);
-            transition: all 0.2s;
-            width: 100%;
-            margin-top: 20px;
-        }
-
-        .gen-btn:hover {
-            background-color: transparent;
-            color: var(--danger);
-            box-shadow: 0 0 15px var(--danger);
-        }
-
-        /* Flicker-effekt vid ny rullning */
-        .flicker-anim {
-            animation: terminal-flicker 0.4s ease-out;
-        }
-
-        @keyframes terminal-flicker {
-            0% { opacity: 0.2; }
-            20% { opacity: 0.9; }
-            40% { opacity: 0.3; }
-            60% { opacity: 0.8; }
-            80% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-
-        /* ADMIN SECTION */
-        .admin-toggle {
-            text-align: center;
-            margin: 40px 0;
-        }
-
-        .admin-link {
-            color: var(--primary-dim);
-            text-decoration: none;
-            font-size: 14px;
-            border: 1px dashed var(--primary-dim);
-            padding: 5px 15px;
-            cursor: pointer;
-            background: transparent;
-        }
-
-        .admin-link:hover {
-            color: var(--primary);
-            border-color: var(--primary);
-        }
-
-        .admin-panel {
-            display: none;
-            border: 2px solid var(--danger);
-            background-color: rgba(15, 0, 0, 0.9);
-            padding: 20px;
-            margin-top: 30px;
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
-        }
-
-        .admin-panel h2 {
-            color: var(--danger);
-            text-transform: uppercase;
-            margin-top: 0;
-            border-bottom: 1px solid var(--danger);
-            padding-bottom: 10px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group label {
-            font-size: 14px;
-            text-transform: uppercase;
-            margin-bottom: 5px;
-            color: var(--primary);
-        }
-
-        .form-control {
-            background-color: #000;
-            border: 1px solid var(--primary-dim);
-            color: var(--primary);
-            font-family: inherit;
-            font-size: 16px;
-            padding: 8px;
-            outline: none;
-        }
-
-        .form-control:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 5px var(--primary);
-        }
-
-        .admin-btn {
-            background-color: var(--danger);
-            color: #fff;
-            border: 2px solid var(--danger);
-            padding: 10px 20px;
-            font-family: inherit;
-            font-weight: bold;
-            text-transform: uppercase;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        .admin-btn:hover {
-            background-color: transparent;
-            color: var(--danger);
-        }
-
-        .terminal-log {
-            background-color: #000;
-            border: 1px solid var(--danger);
-            padding: 10px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 13px;
-            max-height: 150px;
-            overflow-y: auto;
-            margin-top: 15px;
-            white-space: pre-wrap;
-            color: #ff8888;
-        }
-
-        /* CUSTOM MODAL FÖR MEDDELANDEN */
-        .custom-modal {
-            display: none;
-            position: fixed;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            border: 2px solid var(--primary);
-            background-color: var(--bg);
-            padding: 25px;
-            z-index: 10001;
-            box-shadow: 0 0 30px rgba(0,0,0,0.95);
-            width: 90%;
-            max-width: 480px;
-        }
-
-        .custom-modal-header {
-            font-weight: bold;
-            text-transform: uppercase;
-            margin-bottom: 15px;
-            border-bottom: 1px solid var(--primary-dim);
-            padding-bottom: 5px;
-        }
-
-        .custom-modal-btn {
-            background: var(--primary);
-            color: var(--bg);
-            border: none;
-            padding: 8px 18px;
-            font-family: inherit;
-            font-weight: bold;
-            margin-top: 15px;
-            cursor: pointer;
-            text-transform: uppercase;
-        }
-
-        .no-results {
-            text-align: center;
-            padding: 40px;
-            border: 2px dashed var(--primary-dim);
-            font-size: 18px;
-            display: none;
-        }
-
-        footer {
-            margin-top: 60px;
-            padding-top: 20px;
-            border-top: 1px solid var(--primary-dim);
-            font-size: 13px;
-            color: var(--primary-dim);
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .cursor-blink {
-            animation: blink 1s infinite;
-        }
-        @keyframes blink {
-            0%, 49% { opacity: 1; }
-            50%, 100% { opacity: 0; }
-        }
-    </style>
+    .screen-flicker {
+      animation: flicker 0.15s infinite;
+    }
+
+    /* Custom scrollbar for terminal vibe */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.3);
+      border-left: 1px solid var(--primary);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      box-shadow: 0 0 5px var(--glow);
+    }
+
+    /* Standardized button styles */
+    .btn-terminal {
+      background: rgba(0,0,0,0.5);
+      border: 2px solid var(--primary);
+      color: var(--primary);
+      box-shadow: 0 0 6px var(--glow);
+      transition: all 0.2s;
+    }
+    .btn-terminal:hover {
+      background: var(--primary);
+      color: #000;
+      box-shadow: 0 0 15px var(--primary);
+    }
+    .btn-terminal:active {
+      transform: translateY(2px);
+    }
+
+    /* Retro blinking animation */
+    .blink {
+      animation: blinker 1s step-start infinite;
+    }
+    @keyframes blinker {
+      50% { opacity: 0; }
+    }
+
+    /* File grid custom border */
+    .file-card {
+      background: rgba(15, 8, 0, 0.8);
+      border: 1px dashed var(--primary);
+      transition: all 0.2s;
+    }
+    .file-card:hover {
+      border-style: solid;
+      box-shadow: inset 0 0 10px var(--glow);
+    }
+  </style>
 </head>
-<body class="theme-green">
+<body class="p-2 sm:p-4 md:p-6 min-h-screen flex flex-col justify-between">
 
-    <div class="crt-vignette"></div>
+  <!-- Scanlines & Screen Settings Overlay -->
+  <div id="scanlines" class="scanlines-overlay"></div>
 
-    <!-- BOOT SKÄRM -->
-    <div id="boot-screen">
-        <div class="boot-text" id="boot-log"></div>
-        <button class="skip-btn" onclick="skipBoot()">[ AVBRYT INLOGGNINGSPROTOKOLL ]</button>
-    </div>
-
-    <!-- INTERNT MEDDELANDE-FÖNSTER (ERSÄTTER BROWSER ALERTS) -->
-    <div id="custom-modal" class="custom-modal">
-        <div id="modal-title" class="custom-modal-header">SYSTEMMEDDELANDE</div>
-        <div id="modal-body">Innehåll</div>
-        <button class="custom-modal-btn" onclick="closeModal()">STÄNG</button>
-    </div>
-
-    <!-- SPELLÖSENORDSKONTROLL MODAL -->
-    <div id="password-modal" class="custom-modal" style="border-color: var(--danger); background-color: rgba(15, 0, 0, 0.95);">
-        <div class="custom-modal-header" style="color: var(--danger); border-bottom-color: var(--danger); font-size: 1.2rem;">
-            SÄKERHETSBEGRÄNSAD ÅTKOMST
-        </div>
-        <p id="password-hint-text" style="font-size: 15px; margin-bottom: 15px; color: #ff8888; border-left: 2px solid var(--danger); padding-left: 10px;"></p>
-        <div class="form-group">
-            <label style="color: var(--danger);">MANUELL SYSTEMKOD (DEKRYPTERING):</label>
-            <input type="password" id="password-input" class="form-control" style="border-color: var(--danger); color: var(--danger);" onkeydown="if(event.key === 'Enter') submitPassword()">
-        </div>
-        <div style="display: flex; gap: 10px; margin-top: 20px;">
-            <button class="admin-btn" style="margin-top:0;" onclick="submitPassword()">[ OVERRIDE ]</button>
-            <button class="custom-modal-btn" style="margin-top:0; background: transparent; color: var(--primary); border: 1px solid var(--primary);" onclick="closePasswordModal()">[ AVBRYT ]</button>
-        </div>
-    </div>
-
-    <!-- HUVUDINNEHÅLL -->
-    <header>
-        <p class="game-title">SKJUT DOM I HUVUDET</p>
-        <h1>NO:A // DEKLASSIFICERADE_ARKIV</h1>
+  <!-- Main Bezel container -->
+  <div class="crt-bezel max-w-6xl w-full mx-auto my-auto flex-grow flex flex-col">
+    <div class="crt-screen-wrapper flex-grow flex flex-col">
+      <div class="vignette"></div>
+      
+      <!-- Inside Screen content -->
+      <div id="crtScreen" class="crt-screen crt-bulge screen-flicker flex-grow p-4 sm:p-6 flex flex-col justify-between">
         
-        <!-- Navigation mellan de olika terminal-vyerna -->
-        <div class="terminal-nav">
-            <button class="nav-tab active-tab" id="tab-archive" onclick="switchView('archive')">📂 FRIGIVNA FILER</button>
-            <button class="nav-tab danger-tab" id="tab-generator" onclick="switchView('generator')">☣️ SLUMP-O-MATIC (SL-KONSOL)</button>
-        </div>
-
-        <div class="control-panel">
-            <div id="terminal-status">STATUS: ANSLUTEN TILL KRISHANTERING_</div>
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <span>TEMA:</span>
-                <button class="theme-btn active" onclick="changeTheme('green', this)">FOSFOR</button>
-                <button class="theme-btn" onclick="changeTheme('amber', this)">AMBER</button>
-                <button class="theme-btn" onclick="changeTheme('cyan', this)">CYAN</button>
+        <!-- Header Panel -->
+        <header class="border-b border-dashed border-[var(--primary)] pb-4 mb-4">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+            <div>
+              <p id="headerSubText" class="text-sm tracking-widest opacity-80 uppercase font-mono">
+                [ LADDAR SYSTEMINTRUKTION... ]
+              </p>
+              <h1 class="text-3xl sm:text-5xl font-bold tracking-wider uppercase text-glow flex items-center gap-2">
+                <span id="headerMainText">LADDAR TITEL...</span>
+                <span class="text-xs bg-[var(--primary)] text-black px-1.5 py-0.5 rounded blink font-bold">LIVE</span>
+              </h1>
             </div>
-        </div>
-    </header>
+            
+            <!-- Quick Hardware controls directly inside the CRT frame -->
+            <div class="flex flex-wrap gap-2 text-xs">
+              <button onclick="toggleScanlines()" class="px-2 py-1 border border-[var(--primary)] hover:bg-[var(--primary)] hover:text-black transition" title="Slå på/av linjer">
+                SCANLINES: <span id="scanState">PÅ</span>
+              </button>
+              <button onclick="toggleCurve()" class="px-2 py-1 border border-[var(--primary)] hover:bg-[var(--primary)] hover:text-black transition" title="Slå på/av CRT-skärmkurva">
+                CRT-BÖJ: <span id="curveState">PÅ</span>
+              </button>
+              <button onclick="toggleAudio()" class="px-2 py-1 border border-[var(--primary)] hover:bg-[var(--primary)] hover:text-black transition" title="Slå på/av bakgrundsbrus/ljud">
+                AUDIO: <span id="audioState">AV</span>
+              </button>
+            </div>
+          </div>
 
-    <main>
+          <!-- Decorative Color Status Dashboard (Amber Monochrome) -->
+          <div class="mt-4 flex flex-wrap gap-2 items-center text-sm">
+            <span class="opacity-70">SYSTEMMONITOR:</span>
+            <span class="text-[#ffb000] border border-[#ffb000] px-2 py-0.5 bg-black/50 font-bold tracking-widest">MONOKROM [AMBER-SÄKRAD STYRENHET] AKTIV</span>
+          </div>
+        </header>
+
+        <!-- Main Workspace Area -->
+        <main class="grid grid-cols-1 lg:grid-cols-4 gap-4 flex-grow my-2">
+          
+          <!-- LEFT PANEL: DECLASSIFIED ARCHIVE (Files List) -->
+          <section class="lg:col-span-3 flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold tracking-wider text-glow flex items-center gap-2">
+                  <span>📂 DEKLASSIFICERADE ARKIV</span>
+                </h2>
+                <!-- Local Filter Search -->
+                <input type="text" id="archiveSearch" oninput="filterArchives()" placeholder="Sök i arkivet..." class="bg-black text-[var(--primary)] border border-[var(--primary)] px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--primary)] w-48 font-mono">
+              </div>
+
+              <!-- Main Dynamic Files Area -->
+              <div id="fileContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[50vh] lg:max-h-[60vh] overflow-y-auto pr-2">
+                <!-- Loaded via JS -->
+                <p class="animate-pulse">Läser in krypterade dokument...</p>
+              </div>
+            </div>
+
+            <!-- RPG Tips ticker (Fetches dynamically from zombietips.txt) -->
+            <div class="mt-4 p-2 bg-black border border-dashed border-[var(--primary)] text-sm opacity-80 flex items-center justify-between">
+              <div class="truncate mr-2">
+                <span class="font-bold text-glow flex-shrink-0">[MEDDELANDE #<span id="tipNum">01</span>]:</span>
+                <span id="tipText" class="italic">Ansluter till fältsändning...</span>
+              </div>
+              <button onclick="nextTip()" class="underline hover:text-white cursor-pointer ml-2 flex-shrink-0 font-bold">SLUMPVIS</button>
+            </div>
+          </section>
+
+          <!-- RIGHT PANEL: UTILITIES & SYSTEM DIALOG -->
+          <section class="border-t lg:border-t-0 lg:border-l border-dashed border-[var(--primary)] pt-4 lg:pt-0 lg:pl-4 flex flex-col gap-4">
+            
+            <!-- Quick Dice Roller (Highly Upgraded RPG Feature) -->
+            <div class="border border-[var(--primary)] p-3 bg-black flex flex-col gap-2 text-xs">
+              <h3 class="text-base font-bold text-glow border-b border-[var(--primary)] pb-1">🎲 STRIDSKALKYLATOR</h3>
+              
+              <!-- Dice Inputs -->
+              <div class="grid grid-cols-2 gap-2 font-mono">
+                <div>
+                  <label class="block mb-1 opacity-70">ANTAL TÄRNINGAR:</label>
+                  <input type="number" id="diceCount" value="1" min="1" max="50" class="w-full bg-black text-[var(--primary)] border border-[var(--primary)] p-1 text-center focus:outline-none focus:ring-1 focus:ring-[var(--primary)]">
+                </div>
+                <div>
+                  <label class="block mb-1 opacity-70">TÄRNINGSSIDOR:</label>
+                  <input type="number" id="diceSides" value="10" min="2" max="1000" class="w-full bg-black text-[var(--primary)] border border-[var(--primary)] p-1 text-center focus:outline-none focus:ring-1 focus:ring-[var(--primary)]">
+                </div>
+              </div>
+
+              <!-- Presets Row -->
+              <div class="grid grid-cols-4 gap-1">
+                <button onclick="setDicePreset(6)" class="btn-terminal p-1 text-[10px] font-mono">T6</button>
+                <button onclick="setDicePreset(10)" class="btn-terminal p-1 text-[10px] font-mono">T10</button>
+                <button onclick="setDicePreset(20)" class="btn-terminal p-1 text-[10px] font-mono">T20</button>
+                <button onclick="setDicePreset(100)" class="btn-terminal p-1 text-[10px] font-mono">T100</button>
+              </div>
+
+              <!-- OB Exploding Checkbox -->
+              <label class="flex items-center gap-2 cursor-pointer py-1">
+                <input type="checkbox" id="diceOb" class="accent-[var(--primary)] cursor-pointer">
+                <span class="font-bold text-glow tracking-wide select-none">OB (EXPLODERANDE UTFALL)</span>
+              </label>
+
+              <!-- Trigger roll -->
+              <button onclick="triggerRoll()" class="btn-terminal w-full py-1.5 font-bold tracking-widest text-xs uppercase">AKTIVERA STRIDSKALKYLATOR</button>
+
+              <!-- Result Screen -->
+              <div class="bg-black border border-dashed border-[var(--primary)] p-2 text-center h-20 flex flex-col justify-center items-center overflow-hidden">
+                <p class="text-[10px] opacity-60 font-mono">BERÄKNAD EFFEKT</p>
+                <p id="diceResult" class="text-3xl font-bold tracking-widest text-glow font-mono">-</p>
+                <p id="diceBreakdown" class="text-[11px] opacity-80 truncate max-w-full font-mono text-gray-400"></p>
+              </div>
+            </div>
+
+            <!-- Terminal System Logs -->
+            <div class="flex-grow flex flex-col justify-between">
+              <div class="border border-[var(--primary)] p-3 bg-black flex-grow">
+                <h3 class="text-sm font-bold text-glow mb-1">📟 SYSTEMDIAGNOSTIK</h3>
+                <div id="systemLog" class="text-xs font-mono space-y-1 h-36 lg:h-48 overflow-y-auto">
+                  <p class="text-gray-500">[10:13:02] Terminal uppstartad.</p>
+                  <p class="text-gray-500">[10:13:04] Ansluter till mil-nätverk...</p>
+                  <p class="text-[var(--primary)]">[OK] Säkrat gränssnitt upprättat.</p>
+                  <p class="text-[var(--primary)]">[INFO] Skjut dom i huvudet är aktivt.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Audio/Visual Switch panel -->
+            <div class="p-2 border border-red-900 bg-black/80 flex items-center justify-between text-xs">
+              <span class="text-red-500 font-bold tracking-widest animate-pulse">STRÖMKÄLLA: REAKTOR</span>
+              <button onclick="toggleCrtPower()" class="bg-red-950 text-red-400 px-2 py-1 border border-red-500 hover:bg-red-500 hover:text-black font-bold">AVBRYT STRÖM</button>
+            </div>
+          </section>
+        </main>
+
+        <!-- Dynamic CMD line & Folding Admin Link -->
+        <footer class="border-t border-dashed border-[var(--primary)] pt-3 mt-4 flex flex-col sm:flex-row justify-between items-center text-sm gap-2">
+          <div>
+            <span class="mr-2">MIL-NET@REPLIKAT:~#</span>
+            <span class="blink">_</span>
+          </div>
+          <div>
+            <a href="#adminSection" onclick="toggleAdminPanel(event)" class="underline hover:text-white cursor-pointer flex items-center gap-1">
+              ⚙️ [ADMINISTRATÖRSKONSOL (GITHUB UPPSTÄLLNING)]
+            </a>
+          </div>
+        </footer>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- HIDDEN ADMIN SECTION (FOLDS DOWN DRAMATICALLY) -->
+  <section id="adminSection" class="max-w-6xl w-full mx-auto mt-4 hidden">
+    <div class="crt-bezel p-4 sm:p-6">
+      <div class="crt-screen-wrapper p-4 sm:p-6 bg-black text-[var(--primary)]">
         
-        <!-- ==========================================================================
-             VY 1: FILARKIVET (STANDARDVY)
-             ========================================================================== -->
-        <div id="view-archive">
-            <p>SÖKER I NATIONELLA OPERATIVAVDELNINGEN FÖR APOKALYPSENS DATABAS. ALL INFORMATION NEDAN ÄR FRIGIVEN FÖR CIVILBEFOLKNINGEN.</p>
-
-            <!-- Sökning -->
-            <div class="search-container">
-                <span style="margin-right: 10px; font-weight: bold;">SÖK_DATABAS_></span>
-                <input type="text" id="search-bar" class="search-input" placeholder="Skriv sökord..." onkeyup="filterFiles()">
-            </div>
-
-            <div id="no-results-msg" class="no-results">
-                [ KRITISKT FEL: INGA DOKUMENT MATCHAR DIN SÖKNING ]
-            </div>
-
-            <!-- Dynamisk lista för filer -->
-            <ul class="archive-list" id="file-list">
-                <!-- Laddas dynamiskt via JS -->
-            </ul>
+        <div class="flex justify-between items-center border-b border-[var(--primary)] pb-2 mb-4">
+          <h2 class="text-2xl font-bold text-glow">🛠️ ADMINISTRATÖRSKONSOL - GITHUB REPO INTEGRATION</h2>
+          <button onclick="closeAdminPanel()" class="border border-red-500 text-red-500 px-2 py-1 text-xs hover:bg-red-500 hover:text-black font-mono">STÄNG [X]</button>
         </div>
 
-        <!-- ==========================================================================
-             VY 2: ZOMBIE SLUMPGENERATOR
-             ========================================================================== -->
-        <div id="view-generator" style="display: none;">
-            <p style="color: var(--danger);">INTELLIGENT INTEGRATIONSSYSTEM FÖR HOTANALYS. GENERERA OCH ANALYSERA INFESTATIONER I REALTID UTIFRÅN RAPPORTDATA.</p>
-            
-            <div class="generator-container">
-                <div class="generator-header">
-                    <h2>TACTICAL THREAT SCANNER v1.09</h2>
-                    <span style="font-size: 14px; border: 1px solid var(--danger); padding: 2px 8px;">TARGET LOCK</span>
-                </div>
+        <p class="text-sm mb-4 opacity-80 leading-relaxed">
+          Sidan körs från din GitHub Pages-miljö (<span class="underline text-white">antiprenor.github.io/Antiprenor/</span>).
+          Härifrån kan du konfigurera en personlig åtkomst-token (Personal Access Token) för din GitHub-profil. När den är inmatad kan du ladda upp PDF-filer och tillhörande omslag direkt till repot på GitHub. Systemet lägger till filen i din databas (<code class="bg-black px-1 text-white">archives/files.json</code>) så att den visas direkt här i arkivlistan ovan!
+        </p>
 
-                <div class="radar-scan-box">
-                    <div class="radar-bar"></div>
-                </div>
-
-                <div class="tactical-display">
-                    <!-- Terminal-utskrift -->
-                    <div class="display-screen" id="tactical-screen">
-                        <span style="color: #660000;">STÄLL IN SKANNERN OCH EXEKVERA GENERERING...</span>
-                    </div>
-
-                    <!-- Attributskärm -->
-                    <div class="bio-stats-box" id="bio-screen">
-                        <h3 style="color: var(--danger); margin-top: 0; text-transform: uppercase; font-size: 18px; border-bottom: 1px dashed var(--danger-dim); padding-bottom: 5px;">🧬 BIO-METRISKA VÄRDEN</h3>
-                        <div id="bio-stats-list">
-                            <div style="text-align: center; padding-top: 40px; color: var(--danger-dim);">INGA SENSORVÄRDEN TILLGÄNGLIGA</div>
-                        </div>
-                    </div>
-                </div>
-
-                <button class="gen-btn" onclick="triggerZombieGeneration()">[ GENERERA SLUMPMÄSSIGT RETRO-HOT ]</button>
-            </div>
+        <!-- Credentials configuration -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 p-4 border border-dashed border-[var(--primary)] bg-black/50">
+          <div>
+            <label class="block text-xs uppercase font-bold mb-1">GitHub Personal Access Token (PAT):</label>
+            <input type="password" id="githubToken" placeholder="github_pat_..." class="w-full bg-black text-[var(--primary)] border border-[var(--primary)] p-2 focus:outline-none focus:ring-1 focus:ring-[var(--primary)] text-sm font-mono">
+            <span class="text-[11px] opacity-70">Spara din token med 'repo' behörighet. Den sparas säkert enbart lokalt i din webbläsare (localStorage).</span>
+          </div>
+          <div class="flex items-end gap-2">
+            <button onclick="saveToken()" class="btn-terminal text-sm px-4 py-2 flex-grow font-bold">SPARA TOKEN</button>
+            <button onclick="clearToken()" class="border border-red-500 text-red-500 hover:bg-red-500 hover:text-black px-3 py-2 text-sm font-bold">RADERA</button>
+          </div>
         </div>
 
-        <!-- ADMIN GENVÄG -->
-        <div class="admin-toggle">
-            <button class="admin-link" onclick="toggleAdminPanel()">[ KRYPTERAD INLOGGNING (ADMIN-PANEL) ]</button>
+        <!-- File Upload Form -->
+        <div class="border border-[var(--primary)] p-4 bg-black/40">
+          <h3 class="text-lg font-bold text-glow mb-4">📁 SKICKA NYTT DOKUMENT TILL ARKIVET</h3>
+          
+          <form id="uploadForm" onsubmit="handleUploadSubmit(event)" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-bold mb-1">DOKUMENTETS RUBRIK *</label>
+                <input type="text" id="docTitle" required placeholder="t.ex. Överlevnadsguide: Zon 3" class="w-full bg-black text-[var(--primary)] border border-[var(--primary)] p-2 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--primary)]">
+              </div>
+              <div>
+                <label class="block text-sm font-bold mb-1">RELEVANTA TAGGAR (Kommaseparerat)</label>
+                <input type="text" id="docTags" placeholder="t.ex. Zonhandbok, Militär, Hemligt" class="w-full bg-black text-[var(--primary)] border border-[var(--primary)] p-2 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--primary)]">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-bold mb-1">BESKRIVNING / MILITÄR INFORMATION *</label>
+              <textarea id="docDesc" required placeholder="Skriv en kort sammanfattning av filens innehåll eller dess roll i zombie-apokalypsen..." rows="3" class="w-full bg-black text-[var(--primary)] border border-[var(--primary)] p-2 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"></textarea>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-bold mb-1">PDF-DOKUMENT (.pdf) *</label>
+                <input type="file" id="pdfFile" accept=".pdf" required class="w-full bg-black text-[var(--primary)] border border-[var(--primary)] p-2 text-sm focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-sm font-bold mb-1">OMSLAGSBILD (.jpg, .png, .gif) [VALFRITT]</label>
+                <input type="file" id="imageFile" accept="image/*" class="w-full bg-black text-[var(--primary)] border border-[var(--primary)] p-2 text-sm focus:outline-none">
+              </div>
+            </div>
+
+            <!-- Upload progress/logging console -->
+            <div id="uploadProgress" class="hidden p-3 bg-black border border-red-900 font-mono text-xs space-y-1 max-h-40 overflow-y-auto">
+              <p class="text-red-500 font-bold">[AKTIV UPPLADDNINGSMOTOR]</p>
+            </div>
+
+            <div class="flex justify-between items-center gap-4 pt-2">
+              <span class="text-xs text-yellow-500 font-bold" id="sandboxWarning">🚨 Om ingen token angetts körs uppladdningen i ett testläge (simulering).</span>
+              <button type="submit" class="btn-terminal font-bold px-8 py-3">SÄND FIL TILL REPOSITORIE</button>
+            </div>
+          </form>
         </div>
 
-        <!-- DOLD ADMIN PANEL -->
-        <div id="admin-panel" class="admin-panel">
-            <h2>KONSOL: NO:A KÄLLKODSUPPDATERING</h2>
-            <p>Här kan du lägga till nya dokument, PDF-filer och bilder direkt till din GitHub-sida utan att koda.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Audio Context and Web-Audio Synthesizer setup -->
+  <script>
+    // ==========================================
+    // ⚙️ RETRO TERMINAL CONFIGURATION (KONFIGURATION)
+    // Modifiera dessa variabler för att enkelt byta namn, sökvägar och texter!
+    // ==========================================
+    const CONFIG = {
+      // 1. GITHUB REPOSITORIE-INSTÄLLNINGAR
+      REPO_OWNER: "Antiprenor",
+      REPO_NAME: "Antiprenor",
+      BRANCH: "main",
+      
+      // Sökväg till din tips-textfil på GitHub (Varje ny rad = ett nytt speltips i terminalen)
+      TIPS_URL: "https://raw.githubusercontent.com/Antiprenor/Antiprenor/main/zombietips.txt",
+      
+      // Sökväg till JSON-dokumentdatabasen på GitHub
+      DATABASE_URL: "https://raw.githubusercontent.com/Antiprenor/Antiprenor/main/archives/files.json",
+
+      // 2. FILÖVERFÖRING (Vart i repot filerna laddas upp av administratören)
+      UPLOAD_DB_PATH: "archives/files.json",
+      UPLOAD_PDF_DIR: "archives/",
+      UPLOAD_IMG_DIR: "archives/images/",
+
+      // 3. TEXTER OCH RUBRIKER PÅ SKÄRMEN
+      HEADER_SUB: "[ N0:A HAXXADE DOKUMENT // curtesy of: APOCALYPSEN0WHERE. GBG FTW ]",
+      HEADER_MAIN: "SKJUT DOM I HUVUDET - MATERIAL",
+
+      // 4. INBYGGDA RESERVTIPS (Används om den externa tips.txt-filen inte kan hämtas)
+      DEFAULT_TIPS: [
+        "Håll tyst. Ljud lockar till sig dom döda. Rikta alltid skottet mot pannan.",
+        "Lita inte på militära nödsändningar. De är oftast förinspelade fällor.",
+        "Zonerna fryser fort under vintern. Konserver och kaminbränsle är mer värdefullt än ammunition.",
+        "Symptom på infektion visar sig inom 4 timmar. Feber och röda ådror under huden är slutet.",
+        "Huvudet är den weaka punkten. Missar du skottet dör du."
+      ]
+    };
+
+    let audioCtx = null;
+    let humNode = null;
+    let audioEnabled = false;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    // Play retro synthesizer bleep
+    function playBeep(freq, type, duration, volume = 0.1) {
+      if (!audioEnabled) return;
+      initAudio();
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        
+        osc.type = type || 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        
+        gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) { console.error(e); }
+    }
+
+    // Play retro noise keyclick
+    function playClick() {
+      if (!audioEnabled) return;
+      initAudio();
+      try {
+        const bufferSize = audioCtx.sampleRate * 0.02; // Short noise burst
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+        
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+        
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'highpass';
+        filter.frequency.value = 1200;
+        
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.02);
+        
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        noise.start();
+      } catch (e) { console.error(e); }
+    }
+
+    // Play retro error hum
+    function playError() {
+      playBeep(120, 'sawtooth', 0.4, 0.25);
+      playBeep(115, 'sawtooth', 0.4, 0.25);
+    }
+
+    // Play success high-tone arpeggio
+    function playSuccess() {
+      playBeep(440, 'sine', 0.1, 0.15);
+      setTimeout(() => playBeep(554.37, 'sine', 0.1, 0.15), 80);
+      setTimeout(() => playBeep(659.25, 'sine', 0.1, 0.15), 160);
+      setTimeout(() => playBeep(880, 'sine', 0.2, 0.2), 240);
+    }
+
+    // Toggle continuous retro computer hum
+    function toggleAudio() {
+      initAudio();
+      audioEnabled = !audioEnabled;
+      const stateSpan = document.getElementById('audioState');
+      
+      if (audioEnabled) {
+        stateSpan.innerText = 'PÅ';
+        logSystem('Ljudmotor initierad.');
+        playSuccess();
+        
+        // Setup continuous computer background hum
+        try {
+          humNode = audioCtx.createOscillator();
+          const humGain = audioCtx.createGain();
+          humNode.type = 'triangle';
+          humNode.frequency.value = 55; // Deep 55Hz Hum
+          humGain.gain.value = 0.05;
+          
+          humNode.connect(humGain);
+          humGain.connect(audioCtx.destination);
+          humNode.start();
+        } catch (e) { console.error(e); }
+      } else {
+        stateSpan.innerText = 'AV';
+        if (humNode) {
+          try { humNode.stop(); } catch(e){}
+          humNode = null;
+        }
+      }
+    }
+
+    // Capture user clicks anywhere for subtle mechanical feel
+    document.addEventListener('click', (e) => {
+      if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A' || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        playClick();
+      }
+    });
+  </script>
+
+  <!-- Script for System State and Themes -->
+  <script>
+    // Systemet körs nu enbart i klassisk Amber-miljö
+    let currentTheme = 'amber';
+    
+    const themes = {
+      amber: { primary: '#ffb000', glow: 'rgba(255, 176, 0, 0.45)', bg: '#080500' }
+    };
+
+    function changeTheme(themeName) {
+      // Skärmen är låst till Amber för atmosfäriskt kalla-kriget skydd
+      currentTheme = 'amber';
+      const theme = themes.amber;
+      document.documentElement.style.setProperty('--primary', theme.primary);
+      document.documentElement.style.setProperty('--glow', theme.glow);
+      document.documentElement.style.setProperty('--bg-dark', theme.bg);
+    }
+
+    function toggleScanlines() {
+      const scanlines = document.getElementById('scanlines');
+      const stateSpan = document.getElementById('scanState');
+      if (scanlines.style.display === 'none') {
+        scanlines.style.display = 'block';
+        stateSpan.innerText = 'PÅ';
+      } else {
+        scanlines.style.display = 'none';
+        stateSpan.innerText = 'AV';
+      }
+      playBeep(800, 'sine', 0.05, 0.1);
+    }
+
+    function toggleCurve() {
+      const crtScreen = document.getElementById('crtScreen');
+      const stateSpan = document.getElementById('curveState');
+      if (crtScreen.classList.contains('crt-bulge')) {
+        crtScreen.classList.remove('crt-bulge');
+        crtScreen.style.borderRadius = '0px';
+        stateSpan.innerText = 'AV';
+      } else {
+        crtScreen.classList.add('crt-bulge');
+        crtScreen.style.borderRadius = '40px / 8%';
+        stateSpan.innerText = 'PÅ';
+      }
+      playBeep(800, 'sine', 0.05, 0.1);
+    }
+
+    function toggleCrtPower() {
+      const crtScreen = document.getElementById('crtScreen');
+      playBeep(150, 'sawtooth', 0.3, 0.4);
+      crtScreen.classList.toggle('power-off');
+      logSystem(crtScreen.classList.contains('power-off') ? "SKÄRM STRÖMLÖS." : "STRÖM ÅTERSTÄLLD.");
+    }
+
+    // System Log
+    function logSystem(message) {
+      const log = document.getElementById('systemLog');
+      const timestamp = new Date().toLocaleTimeString();
+      const p = document.createElement('p');
+      p.className = 'text-glow';
+      p.innerHTML = `<span class="text-gray-500">[${timestamp}]</span> ${message}`;
+      log.appendChild(p);
+      log.scrollTop = log.scrollHeight;
+    }
+  </script>
+
+  <!-- Upgraded Dice Roller & Dynamic Tips loader -->
+  <script>
+    // Set Dice presets from quick buttons
+    function setDicePreset(sides) {
+      document.getElementById('diceSides').value = sides;
+      playBeep(400, 'sine', 0.05, 0.1);
+    }
+
+    // Trigger calculation of user parameters
+    function triggerRoll() {
+      const count = parseInt(document.getElementById('diceCount').value) || 1;
+      const sides = parseInt(document.getElementById('diceSides').value) || 6;
+      const obEnabled = document.getElementById('diceOb').checked;
+      
+      if (count < 1 || sides < 2) {
+        logSystem("FEL: Ogiltigt antal tärningar eller sidor.");
+        playError();
+        return;
+      }
+      
+      rollDiceComplex(count, sides, obEnabled);
+    }
+
+    // Complex Exploding Dice Roller (OB-tärningar)
+    function rollDiceComplex(count, sides, obEnabled) {
+      playBeep(300, 'triangle', 0.05, 0.2);
+      
+      const resultEl = document.getElementById('diceResult');
+      const breakdownEl = document.getElementById('diceBreakdown');
+      
+      let animationIntervals = 10;
+      let counter = 0;
+      
+      // Animate simulated rolling
+      const interval = setInterval(() => {
+        const tempSum = Array.from({length: count}, () => Math.floor(Math.random() * sides) + 1).reduce((a,b) => a+b, 0);
+        resultEl.innerText = tempSum + (obEnabled ? "!" : "");
+        breakdownEl.innerText = "KALKYLERAR UTFALL...";
+        counter++;
+        
+        if (counter >= animationIntervals) {
+          clearInterval(interval);
+          
+          let totalSum = 0;
+          let diceDetails = [];
+          
+          for (let i = 0; i < count; i++) {
+            let singleDieSum = 0;
+            let currentRoll = Math.floor(Math.random() * sides) + 1;
+            singleDieSum += currentRoll;
             
-            <div style="border: 1px dashed var(--danger); padding: 15px; margin-bottom: 20px; font-size: 14px;">
-                <strong>Instruktioner för att ladda upp:</strong><br>
-                1. Skapa en säker nyckel (Token) på GitHub: <a href="https://github.com/settings/tokens/new" target="_blank" style="color: white;">Klicka här</a> (välj "repo"-rutan).<br>
-                2. Fyll i dina uppgifter nedan. Uppgifterna sparas säkert lokalt i din webbläsare så du slipper skriva dem varje gång.
-            </div>
-
-            <!-- GitHub Autentisering -->
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px;">
-                <div class="form-group">
-                    <label>GitHub Användarnamn</label>
-                    <input type="text" id="git-username" class="form-control" placeholder="T.ex. kalleAnka">
-                </div>
-                <div class="form-group">
-                    <label>Repositorynamn</label>
-                    <input type="text" id="git-repo" class="form-control" placeholder="T.ex. zombierollspel">
-                </div>
-            </div>
-            <div class="form-group">
-                <label>GitHub Personal Access Token (PAT)</label>
-                <input type="password" id="git-token" class="form-control" placeholder="ghp_DittHemligaTokenHär">
-            </div>
-
-            <hr style="border-color: var(--danger); margin: 20px 0;">
-
-            <!-- Uppladdningsformulär -->
-            <h3>LÄGG TILL RETRO-DOKUMENT</h3>
-            <div class="form-group">
-                <label>Dokumenttitel (T.ex. Karantänsregler_Sthlm.pdf)</label>
-                <input type="text" id="new-title" class="form-control" placeholder="T.ex. KARANTÄNSREGLER DETROIT">
-            </div>
-            <div class="form-group">
-                <label>Beskrivning</label>
-                <textarea id="new-desc" class="form-control" rows="3" placeholder="Beskriv vad PDF-filen innehåller..."></textarea>
-            </div>
+            let rollSeq = [currentRoll];
             
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px;">
-                <div class="form-group">
-                    <label>PDF-Fil</label>
-                    <input type="file" id="new-pdf-file" class="form-control" accept=".pdf" style="font-size: 12px;">
-                </div>
-                <div class="form-group">
-                    <label>Liten Bild (Frivilligt)</label>
-                    <input type="file" id="new-img-file" class="form-control" accept="image/*" style="font-size: 12px;">
-                </div>
-            </div>
-
-            <!-- Lösenords-sektion (Känsligt material) -->
-            <div class="form-group" style="flex-direction: row; align-items: center; gap: 10px; margin-top: 10px;">
-                <input type="checkbox" id="enable-password" onchange="togglePasswordFields()" style="width: 20px; height: 20px; accent-color: var(--danger); cursor: pointer;">
-                <label for="enable-password" style="margin-bottom:0; cursor:pointer; color: var(--danger); font-weight: bold;">Lösenordsskydda detta dokument (t.ex. för Spelledare)</label>
-            </div>
+            // Exploding OB mechanic: If roll is maximum possible, roll again
+            if (obEnabled) {
+              while (currentRoll === sides) {
+                currentRoll = Math.floor(Math.random() * sides) + 1;
+                singleDieSum += currentRoll;
+                rollSeq.push(currentRoll);
+              }
+            }
             
-            <div id="password-fields" style="display: none; border: 1px dashed var(--danger); padding: 15px; margin-top: 10px; background: rgba(20,0,0,0.4);">
-                <div class="form-group">
-                    <label style="color: var(--danger);">Lösenordsfras / Systemkod</label>
-                    <input type="text" id="new-password" class="form-control" placeholder="T.ex. KOD88" style="border-color: var(--danger);">
-                </div>
-                <div class="form-group" style="margin-bottom:0;">
-                    <label style="color: var(--danger);">Instruktioner till spelaren för att hitta lösenordet</label>
-                    <input type="text" id="new-hint" class="form-control" placeholder="T.ex. Ange det första ordet på s. 88 i Spelarboken" style="border-color: var(--danger);">
-                </div>
+            totalSum += singleDieSum;
+            
+            // Format single die output string, e.g. "5" or "18(10+8)"
+            if (rollSeq.length > 1) {
+              diceDetails.push(`${singleDieSum} (${rollSeq.join('+')})`);
+            } else {
+              diceDetails.push(`${singleDieSum}`);
+            }
+          }
+          
+          resultEl.innerText = totalSum;
+          const breakdownText = diceDetails.join(' + ');
+          breakdownEl.innerText = count > 1 || obEnabled ? `= ${breakdownText}` : "";
+          
+          playBeep(520, 'sine', 0.15, 0.3);
+          
+          // Log output to system diagnostik logs
+          const obSuffix = obEnabled ? " [OB]" : "";
+          logSystem(`RULLNING: ${count}T${sides}${obSuffix} ➡️ Resultat: <strong class="text-white">${totalSum}</strong> (${breakdownText})`);
+        }
+      }, 60);
+    }
+
+    // RPG Tips loader & switcher
+    let tipsList = [...CONFIG.DEFAULT_TIPS];
+
+    async function loadTipsFromGitHub() {
+      // Skapa en array med sökvägar att testa. Relativ sökväg först (bäst på GitHub Pages), sedan absolut!
+      const urlsToTry = [
+        `zombietips.txt?t=${Date.now()}`,
+        `${CONFIG.TIPS_URL}?t=${Date.now()}`
+      ];
+      
+      let fetchedText = null;
+      
+      for (const url of urlsToTry) {
+        try {
+          const response = await fetch(url);
+          if (response.ok) {
+            fetchedText = await response.text();
+            logSystem(`Anslutning upprättad till zombietips.txt!`);
+            break;
+          }
+        } catch (err) {
+          // Fortsätt testa nästa länk om denna misslyckas
+        }
+      }
+
+      if (fetchedText) {
+        const parsedTips = fetchedText.split(/\r?\n/)
+                               .map(line => line.trim())
+                               .filter(line => line.length > 0);
+        
+        if (parsedTips.length > 0) {
+          tipsList = parsedTips;
+          logSystem(`Framgångsrikt synkroniserat ${tipsList.length} speltips.`);
+        } else {
+          logSystem("Varning: zombietips.txt hittades men var tom. Laddar reservrekommendationer.");
+        }
+      } else {
+        logSystem("Fältsändning offline (zombietips.txt kunde inte hittas). Laddar inbyggda rekommendationer.");
+      }
+      
+      displayRandomTip();
+    }
+
+    function displayRandomTip() {
+      if (tipsList.length === 0) return;
+      const randomIndex = Math.floor(Math.random() * tipsList.length);
+      document.getElementById('tipNum').innerText = String(randomIndex + 1).padStart(2, '0');
+      document.getElementById('tipText').innerText = tipsList[randomIndex];
+    }
+
+    function nextTip() {
+      displayRandomTip();
+      playBeep(400, 'sine', 0.05, 0.1);
+    }
+  </script>
+
+  <!-- File System & GitHub Integration Logic -->
+  <script>
+    // Fallback/Standard-dokument i arkivet (Färgtema uppdaterat till Amber)
+    const defaultArchives = [
+      {
+        id: "survival-guide",
+        title: "Överlevnadshandbok: Zon 4",
+        description: "En snabbguide för hur man överlever i de kalla ruinerna under svensk vinter. Innehåller kartor över skyddsrum.",
+        pdfUrl: "https://raw.githubusercontent.com/Antiprenor/Antiprenor/main/archives/mock_survival.pdf",
+        imageUrl: "",
+        tags: ["Zonhandbok", "Hemligt"],
+        date: "2026-05-20"
+      },
+      {
+        id: "operation-askregn",
+        title: "Krigsorder: Operation Askregn",
+        description: "Deklassificerade dokument om det misslyckade försvaret av Karlskrona kustfästning mot zombievågorna.",
+        pdfUrl: "https://raw.githubusercontent.com/Antiprenor/Antiprenor/main/archives/mock_askregn.pdf",
+        imageUrl: "",
+        tags: ["Order", "Militär"],
+        date: "2026-05-12"
+      },
+      {
+        id: "subject-z-report",
+        title: "Medicinsk rapport: Subjekt-Z",
+        description: "De första patologiska observationerna av den patogena spridningen, signerad forskningsstab Östersjön.",
+        pdfUrl: "https://raw.githubusercontent.com/Antiprenor/Antiprenor/main/archives/mock_subject.pdf",
+        imageUrl: "",
+        tags: ["Forskning", "Laboratorium"],
+        date: "2026-04-30"
+      }
+    ];
+
+    let currentArchives = [...defaultArchives];
+
+    // Main window loader
+    window.onload = function() {
+      // Force correct amber style globally
+      changeTheme('amber');
+
+      // Apply UI elements from CONFIG
+      document.getElementById('headerSubText').innerText = CONFIG.HEADER_SUB;
+      document.getElementById('headerMainText').innerText = CONFIG.HEADER_MAIN;
+
+      const storedToken = localStorage.getItem('github_token');
+      if (storedToken) {
+        document.getElementById('githubToken').value = storedToken;
+        document.getElementById('sandboxWarning').innerHTML = "🟢 GitHub-token laddat från lokal lagring.";
+      }
+      
+      // Load archives and external tips from git
+      loadArchivesFromGitHub();
+      loadTipsFromGitHub();
+    };
+
+    // Attempt to load index from Github
+    async function loadArchivesFromGitHub() {
+      // Försök hämta databasen relativt först (bäst på GitHub Pages), sedan absolut via rå CDN!
+      const urlsToTry = [
+        `archives/files.json?t=${Date.now()}`,
+        `${CONFIG.DATABASE_URL}?t=${Date.now()}`
+      ];
+      
+      let fetchedData = null;
+      
+      for (const url of urlsToTry) {
+        try {
+          const response = await fetch(url);
+          if (response.ok) {
+            fetchedData = await response.json();
+            break;
+          }
+        } catch (err) {
+          // Försök nästa om fel uppstår
+        }
+      }
+
+      if (fetchedData && Array.isArray(fetchedData) && fetchedData.length > 0) {
+        currentArchives = fetchedData;
+        logSystem("Externa dokumentdatabaser synkroniserade.");
+      } else {
+        logSystem("Kunde inte nå extern dokumentdatabas. Laddar inbyggda krisdokument.");
+      }
+      
+      renderArchives();
+    }
+
+    // Render archives into terminal UI
+    function renderArchives() {
+      const container = document.getElementById('fileContainer');
+      container.innerHTML = "";
+      
+      if (currentArchives.length === 0) {
+        container.innerHTML = `<p class="col-span-2 text-center text-red-500 animate-pulse">ARKIVET ÄR TOMT. INGA FILER KUNDE HITTAS.</p>`;
+        return;
+      }
+
+      currentArchives.forEach(archive => {
+        // SVG fallback färgad i Amber (#ffb000)
+        const imgPath = archive.imageUrl || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23111'/><text x='50%25' y='50%25' font-family='sans-serif' font-size='10' fill='%23ffb000' dominant-baseline='middle' text-anchor='middle'>ZOMBIE FILE</text></svg>";
+        const tagsHtml = archive.tags ? archive.tags.map(t => `<span class="border border-[var(--primary)] px-1.5 py-0.2 text-[10px] mr-1">${t.toUpperCase()}</span>`).join('') : '';
+
+        const card = document.createElement('div');
+        card.className = "file-card p-3 flex gap-3 flex-col sm:flex-row items-start justify-between rounded";
+        card.innerHTML = `
+          <div class="flex-shrink-0 w-20 h-24 bg-black border border-[var(--primary)] overflow-hidden hidden sm:flex items-center justify-center">
+            <img src="${imgPath}" alt="Thumbnail" class="w-full h-full object-cover opacity-80" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'100\\' height=\\'120\\' viewBox=\\'0 0 100 120\\'><rect width=\\'100\\' height=\\'120\\' fill=\\'black\\'/><path d=\\'M20,20 L80,20 L80,100 L20,100 Z\\' stroke=\\'%23ffb000\\' stroke-width=\\'2\\' fill=\\'none\\'/><text x=\\'50%25\\' y=\\'50%25\\' font-family=\\'monospace\\' font-size=\\'12\\' fill=\\'%23ffb000\\' text-anchor=\\'middle\\'>PDF</text></svg>'">
+          </div>
+          <div class="flex-grow flex flex-col justify-between h-full space-y-2">
+            <div>
+              <div class="flex flex-wrap items-center justify-between gap-1">
+                <h4 class="font-bold text-lg text-glow tracking-wider text-white">${archive.title}</h4>
+                <span class="text-xs opacity-60">${archive.date}</span>
+              </div>
+              <p class="text-xs opacity-80 line-clamp-2 mt-1 leading-normal text-gray-300">${archive.description}</p>
             </div>
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+              <div class="flex flex-wrap gap-1">${tagsHtml}</div>
+              <a href="${archive.pdfUrl}" target="_blank" class="btn-terminal px-3 py-1 text-xs font-bold tracking-widest flex items-center gap-1">
+                📥 DOWNLOAD (PDF)
+              </a>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
 
-            <button class="admin-btn" onclick="startPublishProcess()">[ STARTA UPPLADDNINGSPROTOKOLL ]</button>
+    // Filter local display based on search input
+    function filterArchives() {
+      const searchTerm = document.getElementById('archiveSearch').value.toLowerCase();
+      const filtered = currentArchives.filter(arch => {
+        return arch.title.toLowerCase().includes(searchTerm) || 
+               arch.description.toLowerCase().includes(searchTerm) ||
+               (arch.tags && arch.tags.some(t => t.toLowerCase().includes(searchTerm)));
+      });
+      
+      const container = document.getElementById('fileContainer');
+      container.innerHTML = "";
+      
+      if (filtered.length === 0) {
+        container.innerHTML = `<p class="col-span-2 text-center text-red-500 py-6">INGA SÖKRESULTAT FUNNA.</p>`;
+        return;
+      }
 
-            <!-- Status-logg för uppladdningen -->
-            <div id="upload-log" class="terminal-log" style="display:none;"></div>
-        </div>
-    </main>
+      filtered.forEach(archive => {
+        const imgPath = archive.imageUrl || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23111'/><text x='50%25' y='50%25' font-family='sans-serif' font-size='10' fill='%23ffb000' dominant-baseline='middle' text-anchor='middle'>ZOMBIE FILE</text></svg>";
+        const tagsHtml = archive.tags ? archive.tags.map(t => `<span class="border border-[var(--primary)] px-1.5 py-0.2 text-[10px] mr-1">${t.toUpperCase()}</span>`).join('') : '';
 
-    <footer>
-        <div>SYSTEM://NO:A_TERMINAL_ONLINE</div>
-        <div>ANSLUTNING: SÄKER <span class="cursor-blink">_</span></div>
-    </footer>
+        const card = document.createElement('div');
+        card.className = "file-card p-3 flex gap-3 flex-col sm:flex-row items-start justify-between rounded";
+        card.innerHTML = `
+          <div class="flex-shrink-0 w-20 h-24 bg-black border border-[var(--primary)] overflow-hidden hidden sm:flex items-center justify-center">
+            <img src="${imgPath}" alt="Thumbnail" class="w-full h-full object-cover opacity-80" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'100\\' height=\\'120\\' viewBox=\\'0 0 100 120\\'><rect width=\\'100\\' height=\\'120\\' fill=\\'black\\'/><path d=\\'M20,20 L80,20 L80,100 L20,100 Z\\' stroke=\\'%23ffb000\\' stroke-width=\\'2\\' fill=\\'none\\'/><text x=\\'50%25\\' y=\\'50%25\\' font-family=\\'monospace\\' font-size=\\'12\\' fill=\\'%23ffb000\\' text-anchor=\\'middle\\'>PDF</text></svg>'">
+          </div>
+          <div class="flex-grow flex flex-col justify-between h-full space-y-2">
+            <div>
+              <div class="flex flex-wrap items-center justify-between gap-1">
+                <h4 class="font-bold text-lg text-glow tracking-wider text-white">${archive.title}</h4>
+                <span class="text-xs opacity-60">${archive.date}</span>
+              </div>
+              <p class="text-xs opacity-80 line-clamp-2 mt-1 leading-normal text-gray-300">${archive.description}</p>
+            </div>
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+              <div class="flex flex-wrap gap-1">${tagsHtml}</div>
+              <a href="${archive.pdfUrl}" target="_blank" class="btn-terminal px-3 py-1 text-xs font-bold tracking-widest flex items-center gap-1">
+                📥 DOWNLOAD (PDF)
+              </a>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
 
-    <script>
-        // ==========================================================================
-        // SLUMPDATABAS: UTÖKA OCH REDIGERA RETRO-HOT ENKELT HÄR UNDER!
-        // ==========================================================================
-        const ZOMBIE_DATABAS = {
-            // Grundläggande zombietyper som finns bakom systemet
-            grundtyper: [
-                {
-                    namn: "Släpande Vandrare",
-                    faroniva: "LÅG",
-                    halsa: "3T6 + 5",
-                    hastighet: "Långsam (1 handling/runda)",
-                    attack: "Grepp & Bett (Skada 1T6 + Smittorisk)",
-                    beskrivning: "En dyster kvarleva av civilbefolkningen. Släpar fötterna efter sig och reagerar främst på ljud och färskt blod."
-                },
-                {
-                    namn: "Hundlik Löpare",
-                    faroniva: "MEDIUM",
-                    halsa: "2T6 + 3",
-                    hastighet: "Extremt Snabb (3 handlingar/runda)",
-                    attack: "Slitande bett (Skada 1T8, sänker målets förflyttning)",
-                    beskrivning: "Helt rabiat varelse som rör sig på alla fyra med onaturlig vighet. Springer i sick-sack mot sina offer."
-                },
-                {
-                    namn: "Gasfylld Sprängare",
-                    faroniva: "HÖG",
-                    halsa: "3T6",
-                    hastighet: "Normal (2 handlingar/runda)",
-                    attack: "Frätande syramoln vid död (Area-skada 2T6 + blindhet)",
-                    beskrivning: "Kroppen har svällt upp till bristningsgränsen av brandfarliga och giftiga förruttnelsegaser. Exploderar våldsamt vid hård fysisk skada."
-                },
-                {
-                    namn: "Guttural Skrikare",
-                    faroniva: "MEDIUM",
-                    halsa: "2T6 + 6",
-                    hastighet: "Snabb (2 handlingar/runda)",
-                    attack: "Paralyserande vrål (Inget fysiskt men tillkallar 1T3 nya vandrare)",
-                    beskrivning: "Stämbanden har muterat till en resonant resonanslåda. Dess skrik skapar panik hos människor och drar till sig alla hot i närheten."
-                },
-                {
-                    namn: "Pansarkravlare",
-                    faroniva: "KRITISK",
-                    halsa: "5T6 + 10",
-                    hastighet: "Trög (1 handling/runda, svår att rubba)",
-                    attack: "Krossande slag (Skada 2T6, bryter ben)",
-                    beskrivning: "Zombifierad militär- eller kravallpolis som fortfarande bär intakt skyddsutrustning. Otroligt stryktålig."
-                },
-                {
-                    namn: "Smittat Barn (Krypare)",
-                    faroniva: "LÅG",
-                    halsa: "1T6 + 2",
-                    hastighet: "Snabb (2 handlingar/runda, lätt att missa)",
-                    attack: "Nyp & Bett (Skada 1T4 + Hög infektionsrisk)",
-                    beskrivning: "Liten och svårträffad varelse som gömmer sig under bråte och kastar sig mot offrens vrister."
-                }
-            ],
+    // Toggle slide-down console view
+    function toggleAdminPanel(e) {
+      e.preventDefault();
+      const panel = document.getElementById('adminSection');
+      panel.classList.toggle('hidden');
+      if (!panel.classList.contains('hidden')) {
+        playBeep(220, 'triangle', 0.2, 0.2);
+        setTimeout(() => playBeep(440, 'triangle', 0.2, 0.1), 150);
+        panel.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        playBeep(330, 'triangle', 0.15, 0.2);
+      }
+    }
 
-            // Slumpmässiga särdrag/mutationer som läggs till på grundtypen
-            sardrag: [
-                "Saknar helt underkäke (kan inte bita, men klöser med vassa naglar).",
-                "Kroppen dryper av illaluktande, trögflytande svart tjära.",
-                "Zombiens ögon lyser svagt bärnstensgula i mörkret.",
-                "Ena armen har brutits av men hänger kvar i senor och används som piska.",
-                "Zombiens kranium har blivit delvis krossat men den verkar helt opåverkad.",
-                "Bär rester av en brinnande tröja, sprider eld vid närkontakt.",
-                "Har taggtråd hårt lindad runt hela bålen och armarna."
-            ],
+    function closeAdminPanel() {
+      document.getElementById('adminSection').classList.add('hidden');
+      playBeep(330, 'triangle', 0.15, 0.15);
+    }
 
-            // Vad zombien gör precis när speltruppen upptäcker den
-            beteende: [
-                "Sitter fastklämd i en rostig ventilationstrumma och kämpar för att ta sig loss.",
-                "Sliter frenetiskt i en dörrkarm till ett låst skafferi.",
-                "Står helt stilla vänd mot en vägg och viskar osammanhängande ord.",
-                "Tuggar rituellt och mekaniskt på en sönderriven bildäcksslang.",
-                "Ligger till synes livlös på golvet men gör utfall om någon går nära.",
-                "Släpar ett tungt järnrör efter sig som skapar ett fruktansvärt skrapande ljud.",
-                "Söker igenom en hög med sopor med onaturligt koncentrerad blick."
-            ],
+    // LocalStorage Credentials Saving
+    function saveToken() {
+      const token = document.getElementById('githubToken').value;
+      if (token) {
+        localStorage.setItem('github_token', token);
+        document.getElementById('sandboxWarning').innerHTML = "🟢 GitHub-token laddat och sparat i lokal lagring!";
+        playSuccess();
+        logSystem("Administratörs-token sparad lokalt.");
+      } else {
+        playError();
+      }
+    }
 
-            // Platser där zombien påträffas för lite extra flavor till SL
-            fyndplats: [
-                "I det mörka källarvalvet under sjukhuset.",
-                "Baksätet på en övergiven militärjeep.",
-                "Fastklämd i den trasiga rulltrappan på tunnelbanestationen.",
-                "I en raserad närbutik bakom disken.",
-                "Hängande halvt ut ur ett krossat fönster på andra våningen."
-            ]
+    function clearToken() {
+      localStorage.removeItem('github_token');
+      document.getElementById('githubToken').value = "";
+      document.getElementById('sandboxWarning').innerHTML = "🚨 Ingen GitHub-token angiven. Sandbox-läge aktivt.";
+      playBeep(100, 'sawtooth', 0.3, 0.2);
+      logSystem("Administratörs-token raderad.");
+    }
+  </script>
+
+  <!-- Base64 Uploader & GitHub API connection script -->
+  <script>
+    // System Logger to display in the admin panel's sub-console
+    function adminLog(message, isError = false) {
+      const progBox = document.getElementById('uploadProgress');
+      progBox.classList.remove('hidden');
+      const p = document.createElement('p');
+      p.className = isError ? "text-red-500" : "text-[var(--primary)]";
+      p.innerText = `[${new Date().toLocaleTimeString()}] ${message}`;
+      progBox.appendChild(p);
+      progBox.scrollTop = progBox.scrollHeight;
+    }
+
+    // Conversion helper: Files to Base64 (excluding meta declaration)
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+          const base64String = reader.result.split(',')[1];
+          resolve(base64String);
         };
+        reader.onerror = error => reject(error);
+      });
+    }
 
-        // STANDARD-DOKUMENT (Om databasfilen files.json inte har skapats än i ditt repo)
-        const defaultFiles = [
-            {
-                title: "SPELLEDARGUIDE_HEMLIG.PDF",
-                desc: "Kritiska SL-tabeller, infektionsframsteg och bakomliggande sanningar om katastrofen. ENDAST FÖR SPELLEDARKONSULTER.",
-                pdf: "spelledarguide.pdf",
-                img: "",
-                password: "KOD88",
-                passwordHint: "ANGE DET FÖRSTA ORDET PÅ SIDAN 88 I SPELARBOOOKEN."
+    // Submission interceptor for document creation
+    async function handleUploadSubmit(e) {
+      e.preventDefault();
+      
+      const title = document.getElementById('docTitle').value;
+      const desc = document.getElementById('docDesc').value;
+      const tagsStr = document.getElementById('docTags').value;
+      const pdfFileInput = document.getElementById('pdfFile').files[0];
+      const imgFileInput = document.getElementById('imageFile').files[0];
+      const token = document.getElementById('githubToken').value;
+
+      const tags = tagsStr ? tagsStr.split(',').map(t => t.trim()) : [];
+      const timestamp = Date.now();
+      const today = new Date().toISOString().split('T')[0];
+
+      const pdfFilename = `${timestamp}-${pdfFileInput.name.replace(/\s+/g, '_')}`;
+      let imgFilename = "";
+      if (imgFileInput) {
+        imgFilename = `${timestamp}-${imgFileInput.name.replace(/\s+/g, '_')}`;
+      }
+
+      document.getElementById('uploadProgress').innerHTML = `<p class="text-yellow-500 font-bold">[STARTAR UPPLADDNINGSMOTOR...]</p>`;
+
+      // CASE A: SANDBOX SIMULATED MODE (If no token is supplied)
+      if (!token) {
+        adminLog("⚠️ Ingen token hittad! Startar sandlådesimulering...", false);
+        adminLog(`Krypterar: ${pdfFileInput.name} (PDF)...`, false);
+        
+        setTimeout(() => {
+          adminLog(`Kopplar upp mot fiktiv nod: ${CONFIG.REPO_OWNER}/${CONFIG.REPO_NAME}...`, false);
+          adminLog(`[SUCCESS] PDF-Filen '${pdfFilename}' simulerades uppladdad!`, false);
+          
+          let mockImgUrl = "";
+          if (imgFileInput) {
+            adminLog(`Laddar upp bildfil: '${imgFilename}'...`, false);
+            mockImgUrl = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100' height='100' fill='%23222'/><text x='50%25' y='50%25' font-family='sans-serif' font-size='8' fill='%23ffb000' text-anchor='middle'>BILD</text></svg>";
+          }
+
+          const newObj = {
+            id: `mock-${timestamp}`,
+            title: title,
+            description: desc,
+            pdfUrl: "#", // Test download
+            imageUrl: mockImgUrl,
+            tags: tags,
+            date: today
+          };
+
+          currentArchives.unshift(newObj);
+          renderArchives();
+          playSuccess();
+          adminLog(`[SYSTEM] Simulering slutförd! Nytt dokument tilllagt till din lokala session i terminalen!`, false);
+          logSystem(`Lokalt test-dokument '${title}' upplagt.`);
+        }, 1500);
+
+        return;
+      }
+
+      // CASE B: GENUINE LIVE GITHUB REPO UPLOAD
+      adminLog("Ansluter till GitHub API med angiven token...", false);
+      
+      const repoOwner = CONFIG.REPO_OWNER;
+      const repoName = CONFIG.REPO_NAME;
+      const branch = CONFIG.BRANCH;
+      
+      try {
+        // 1. Upload PDF binary to repository
+        adminLog(`Laddar upp PDF-fil (${pdfFileInput.name}) till GitHub...`);
+        const pdfBase64 = await fileToBase64(pdfFileInput);
+        const pdfPath = `${CONFIG.UPLOAD_PDF_DIR}${pdfFilename}`;
+        const pdfUploadUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${pdfPath}`;
+        
+        const pdfRes = await fetch(pdfUploadUrl, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `token ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: `Uppladdning av PDF: ${title}`,
+            content: pdfBase64,
+            branch: branch
+          })
+        });
+
+        if (!pdfRes.ok) throw new Error(`Misslyckades att skicka PDF-filen. Felkod: ${pdfRes.status}`);
+        adminLog(`[OK] PDF laddades upp till '${pdfPath}'.`);
+
+        // 2. Upload optional image
+        let finalImgUrl = "";
+        if (imgFileInput) {
+          adminLog(`Krypterar och överför omslagsbild (${imgFileInput.name})...`);
+          const imgBase64 = await fileToBase64(imgFileInput);
+          const imgPath = `${CONFIG.UPLOAD_IMG_DIR}${imgFilename}`;
+          const imgUploadUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${imgPath}`;
+          
+          const imgRes = await fetch(imgUploadUrl, {
+            method: 'PUT',
+            headers: {
+              'Authorization': `token ${token}`,
+              'Content-Type': 'application/json'
             },
-            {
-                title: "KARANTÄNSREGLER_STHLM.PDF",
-                desc: "Officiella direktiv från NO:A angående isolering av infekterade zoner i Stockholmsområdet. Obligatorisk läsning för alla överlevare.",
-                pdf: "karantan_sthlm.pdf",
-                img: ""
-            },
-            {
-                title: "FÄLTHANDBOK_NÄRSTRID.PDF",
-                desc: "Taktisk instruktionsmanual för hur man effektivt oskadliggör hot med blankvapen. Fokus på träffytor i kranium.",
-                pdf: "falthandbok.pdf",
-                img: ""
-            }
-        ];
+            body: JSON.stringify({
+              message: `Uppladdning av omslag till: ${title}`,
+              content: imgBase64,
+              branch: branch
+            })
+          });
 
-        let loadedFiles = [...defaultFiles];
-        let activePdfUrl = '';
-        let activeDecodedPassword = '';
-
-        // 1. BOOT SEKVENSMENYN (UPPDATERAD MED "Hacking NO:A archives...")
-        const bootLines = [
-            "ROM BIOS v2.84 (C) RETRO-CORE CORP 1989",
-            "RAM CHECK: 512KB OK",
-            "CONNECTING TO NETWORK...",
-            "INITIALIZING DECRYPTION PROTOCOL...",
-            "Hacking NO:A archives...",
-            "BYPASSING NATIONELLA OPERATIVAVDELNINGEN SECURITY CORPS...",
-            "SUCCESS. ACCESS GRANTED TO SECTOR 7.",
-            "...",
-            "LÄSER IN ZOMBIERAPPORT: 'SKJUT DOM I HUVUDET'...",
-            "READY."
-        ];
-
-        let bootLineIndex = 0;
-        const bootLogElement = document.getElementById("boot-log");
-
-        function playBootSequence() {
-            if (bootLineIndex < bootLines.length) {
-                bootLogElement.textContent += bootLines[bootLineIndex] + "\n";
-                bootLineIndex++;
-                const bootScreen = document.getElementById("boot-screen");
-                bootScreen.scrollTop = bootScreen.scrollHeight;
-                setTimeout(playBootSequence, 160);
-            } else {
-                setTimeout(skipBoot, 500);
-            }
+          if (imgRes.ok) {
+            adminLog(`[OK] Omslag laddades upp till '${imgPath}'.`);
+            finalImgUrl = `https://raw.githubusercontent.com/${repoOwner}/${repoName}/${branch}/${imgPath}`;
+          } else {
+            adminLog("⚠️ Misslyckades att ladda upp omslag, fortsätter utan omslag...", true);
+          }
         }
 
-        window.onload = function() {
-            playBootSequence();
-            loadCredentials();
-            fetchFiles(); 
+        // 3. Update or create db files.json index inside the repo
+        adminLog("Synkroniserar dokument-databasen...");
+        const dbPath = CONFIG.UPLOAD_DB_PATH;
+        const dbUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${dbPath}`;
+        
+        let dbSha = null;
+        let dbArray = [];
+
+        // Check if DB exists
+        const dbCheckRes = await fetch(dbUrl, {
+          headers: { 'Authorization': `token ${token}` }
+        });
+
+        if (dbCheckRes.status === 200) {
+          const dbData = await dbCheckRes.json();
+          dbSha = dbData.sha;
+          const decodedContent = atob(dbData.content);
+          // decode with utf-8 compatibility
+          const decodedUtf8 = decodeURIComponent(escape(decodedContent));
+          try {
+            dbArray = JSON.parse(decodedUtf8);
+          } catch(e) {
+            dbArray = [];
+          }
+          adminLog("Existerande databas ('files.json') funnen på servern.");
+        } else if (dbCheckRes.status === 404) {
+          adminLog("Ingen databas funnen. Skapar en ny databas på GitHub...");
+        } else {
+          throw new Error("Kunde inte läsa databasen på GitHub.");
+        }
+
+        // Push new item to array
+        const newItem = {
+          id: `doc-${timestamp}`,
+          title: title,
+          description: desc,
+          pdfUrl: `https://raw.githubusercontent.com/${repoOwner}/${repoName}/${branch}/${pdfPath}`,
+          imageUrl: finalImgUrl,
+          tags: tags,
+          date: today
         };
+        dbArray.unshift(newItem); // Put first in list
 
-        function skipBoot() {
-            const bootScreen = document.getElementById("boot-screen");
-            bootScreen.style.transition = "opacity 0.4s ease";
-            bootScreen.style.opacity = 0;
-            setTimeout(() => { bootScreen.style.display = "none"; }, 400);
-        }
+        // Encode JSON securely to Base64 (supporting special Swedish characters like å, ä, ö)
+        const updatedDbString = JSON.stringify(dbArray, null, 2);
+        const updatedDbBase64 = btoa(unescape(encodeURIComponent(updatedDbString)));
 
-        // NAVIGATION SWITCHER (Mellan flikar)
-        function switchView(viewName) {
-            const archiveView = document.getElementById("view-archive");
-            const generatorView = document.getElementById("view-generator");
-            const tabArchive = document.getElementById("tab-archive");
-            const tabGenerator = document.getElementById("tab-generator");
-            const statusText = document.getElementById("terminal-status");
+        // Push DB update back to GitHub
+        const dbUpdateRes = await fetch(dbUrl, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `token ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: `Databas uppdaterad med dokument: ${title}`,
+            content: updatedDbBase64,
+            sha: dbSha,
+            branch: branch
+          })
+        });
 
-            if (viewName === 'archive') {
-                archiveView.style.display = "block";
-                generatorView.style.display = "none";
-                tabArchive.classList.add("active-tab");
-                tabGenerator.classList.remove("active-tab");
-                statusText.textContent = "STATUS: ANSLUTEN TILL KRISHANTERING_";
-            } else {
-                archiveView.style.display = "none";
-                generatorView.style.display = "block";
-                tabArchive.classList.remove("active-tab");
-                tabGenerator.classList.add("active-tab");
-                statusText.textContent = "STATUS: APOCALYPSE_THREAT_SCANNER_CONNECTED_";
-                // Generera en zombie direkt om skärmen är tom
-                if (document.getElementById("tactical-screen").textContent.includes("STÄLL IN SKANNERN")) {
-                    triggerZombieGeneration();
-                }
-            }
-        }
+        if (!dbUpdateRes.ok) throw new Error(`Kunde inte uppdatera files.json databasen. Felkod: ${dbUpdateRes.status}`);
 
-        // ==========================================================================
-        // SYSTEMLOGIK: SLUMPGENERATORN
-        // ==========================================================================
-        function rollDiceString(diceStr) {
-            // Tolkar t.ex. "3T6 + 5" till ett slumpat tal
-            try {
-                const cleanStr = diceStr.replace(/\s+/g, '').toUpperCase();
-                const parts = cleanStr.split('+');
-                const dicePart = parts[0]; // t.ex. "3T6"
-                const constantPart = parts[1] ? parseInt(parts[1], 10) : 0;
-
-                const diceSubparts = dicePart.split('T');
-                const count = parseInt(diceSubparts[0], 10);
-                const sides = parseInt(diceSubparts[1], 10);
-
-                let sum = 0;
-                for (let i = 0; i < count; i++) {
-                    sum += Math.floor(Math.random() * sides) + 1;
-                }
-                return sum + constantPart;
-            } catch (e) {
-                return 10; // Fallback om strängtolkningen slår fel
-            }
-        }
-
-        function triggerZombieGeneration() {
-            const screen = document.getElementById("tactical-screen");
-            const bioScreenList = document.getElementById("bio-stats-list");
-            
-            // Kör en kort flimmer-animation för terminal-känslan
-            screen.classList.remove("flicker-anim");
-            document.getElementById("bio-screen").classList.remove("flicker-anim");
-            void screen.offsetWidth; // Trigger reflow
-            screen.classList.add("flicker-anim");
-            document.getElementById("bio-screen").classList.add("flicker-anim");
-
-            // Slumpa grundläggande värden
-            const typ = ZOMBIE_DATABAS.grundtyper[Math.floor(Math.random() * ZOMBIE_DATABAS.grundtyper.length)];
-            const särdrag = ZOMBIE_DATABAS.sardrag[Math.floor(Math.random() * ZOMBIE_DATABAS.sardrag.length)];
-            const beteende = ZOMBIE_DATABAS.beteende[Math.floor(Math.random() * ZOMBIE_DATABAS.beteende.length)];
-            const fyndplats = ZOMBIE_DATABAS.fyndplats[Math.floor(Math.random() * ZOMBIE_DATABAS.fyndplats.length)];
-
-            // Beräkna hälsa utifrån tärningskod
-            const beraknadHalsa = rollDiceString(typ.halsa);
-
-            // Generera ASCII-grafik baserad på faronivå
-            let asciiScan = "";
-            if (typ.faroniva === "LÅG") {
-                asciiScan = `
-[+]------------------[+]
-|  _  _  _  _  _  _  |
-| | |/ \\/ \\/ \\/ \\| | |  <- NORMAL PULS
-| |_|\\_/\\_/\\_/\\_/|_| |
-[+]------------------[+]`;
-            } else if (typ.faroniva === "MEDIUM" || typ.faroniva === "HÖG") {
-                asciiScan = `
-[!]------------------[!]
-|   _   _  _   _   _ |
-|  / \\_/ \\/ \\_/ \\_/  |  <- OREGELBUNDEN AKTIVITET
-| \\_/   \\_/  \\_/   \\ |
-[!]------------------[!]`;
-            } else {
-                asciiScan = `
-[☠️]-----------------[☠️]
-|  /\\   /\\  /\\  /\\   |
-| /  \\_/  \\/  \\/  \\  |  <- KRITISK ANOMALI DETEKTERAD
-|/    \\/   \\/    \\/  |
-[☠️]-----------------[☠️]`;
-            }
-
-            // Skriv ut rapporten i terminalfönstret
-            screen.innerHTML = `
-<div style="color: #ff3333; font-weight: bold; font-size: 1.1rem; border-bottom: 1px dashed #ff3333; padding-bottom: 5px; margin-bottom: 10px;">
-⚡ DETEKTERAT RETRO-HOT: ${typ.namn.toUpperCase()}
-</div>
-<p style="margin-top: 5px;"><strong>BESKRIVNING:</strong> ${typ.beskrivning}</p>
-<p><strong>MUTATION/SÄRDRAG:</strong> <span style="color: #fff;">${särdrag}</span></p>
-<p><strong>DETEKTERAT BETEENDE:</strong> <span style="color: #ff8888;">${beteende}</span></p>
-<p><strong>PÅTRÄFFAD PLATS:</strong> <em>${fyndplats}</em></p>
-<div style="font-size: 11px; line-height: 1.2; color: #cc0000; margin-top: 15px; font-family: monospace; white-space: pre-wrap;">
-${asciiScan}
-</div>
-`;
-
-            // Skriv ut siffervärden i biometriska listan
-            bioScreenList.innerHTML = `
-                <div class="stat-line">
-                    <span class="stat-label">HOTKLASSIFICERING:</span>
-                    <span class="stat-value" style="color: ${typ.faroniva === 'KRITISK' || typ.faroniva === 'HÖG' ? '#ff3333' : '#ffb000'}; font-weight:bold;">${typ.faroniva}</span>
-                </div>
-                <div class="stat-line">
-                    <span class="stat-label">STRIDS-HÄLSA (HP):</span>
-                    <span class="stat-value" style="color:#fff;">${beraknadHalsa} <span style="font-size: 12px; color:#ff8888;">(rullat: ${typ.halsa})</span></span>
-                </div>
-                <div class="stat-line">
-                    <span class="stat-label">REAKTIONSFÖRMÅGA:</span>
-                    <span class="stat-value">${typ.hastighet}</span>
-                </div>
-                <div class="stat-line">
-                    <span class="stat-label">HUVUDATTACK:</span>
-                    <span class="stat-value" style="color: #ff8888;">${typ.attack}</span>
-                </div>
-                <div class="stat-line" style="border-bottom:none; margin-top: 10px; font-size:12px; color:var(--danger-dim);">
-                    <span>SYSTEM ID: NOA_${Math.floor(1000 + Math.random() * 9000)}_INF</span>
-                </div>
-            `;
-        }
-
-        // 2. RETRO MODAL FÖR FEL/INFO
-        function showModal(title, text) {
-            document.getElementById("modal-title").textContent = title;
-            document.getElementById("modal-body").textContent = text;
-            document.getElementById("custom-modal").style.display = "block";
-        }
-
-        function closeModal() {
-            document.getElementById("custom-modal").style.display = "none";
-        }
-
-        // LÖSENORDSPROMPT MODAL-FUNKTIONER
-        function promptPassword(pdfUrl, encodedPassword, encodedHint) {
-            activePdfUrl = pdfUrl;
-            activeDecodedPassword = decodeURIComponent(escape(atob(encodedPassword)));
-            const hint = decodeURIComponent(escape(atob(encodedHint)));
-            
-            document.getElementById("password-hint-text").textContent = hint || "DETTA DOKUMENT ÄR LÅST. VÄNLIGEN ANGE SYSTEMKODEN.";
-            document.getElementById("password-input").value = '';
-            document.getElementById("password-modal").style.display = "block";
-            
-            setTimeout(() => document.getElementById("password-input").focus(), 100);
-        }
-
-        function closePasswordModal() {
-            document.getElementById("password-modal").style.display = "none";
-        }
-
-        function submitPassword() {
-            const userInput = document.getElementById("password-input").value.trim();
-            
-            if (userInput.toUpperCase() === activeDecodedPassword.toUpperCase()) {
-                closePasswordModal();
-                showModal("ÅTKOMST BEVILJAD", "Krypteringen bruten. Startar nedladdning av filen...");
-                
-                const link = document.createElement('a');
-                link.href = activePdfUrl;
-                link.download = '';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            } else {
-                showModal("SÄKERHETSFEL", "FELAKTIGT LÖSENORD. SYSTEMET HAR LOGGAT DETTA DETEKTERADE INTRÅNGS-FÖRSÖK.");
-            }
-        }
-
-        // 3. BYT TEMAFÄRG
-        function changeTheme(themeName, button) {
-            document.body.className = '';
-            if (themeName === 'amber') document.body.classList.add('theme-amber');
-            else if (themeName === 'cyan') document.body.classList.add('theme-cyan');
-            else document.body.classList.add('theme-green');
-
-            const buttons = document.querySelectorAll('.theme-btn');
-            buttons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-        }
-
-        // 4. HÄMTA DATABASEN (FILES.JSON)
-        async function fetchFiles() {
-            try {
-                const response = await fetch('files.json');
-                if (response.ok) {
-                    loadedFiles = await response.json();
-                }
-            } catch (e) {
-                console.log("Kunde inte hämta files.json, använder standard-rollspelsfiler.");
-            }
-            renderFiles();
-        }
-
-        // RENDER FILERNA TILL TERMINALEN
-        function renderFiles() {
-            const listContainer = document.getElementById("file-list");
-            listContainer.innerHTML = '';
-
-            loadedFiles.forEach(file => {
-                const listItem = document.createElement('li');
-                
-                const isLocked = !!file.password;
-                listItem.className = isLocked ? 'archive-item locked-item' : 'archive-item';
-                listItem.setAttribute('data-title', file.title);
-                listItem.setAttribute('data-desc', file.desc);
-
-                const imgHtml = file.img 
-                    ? `<img src="${file.img}" alt="${file.title}" class="item-image" onerror="handleImageError(this)">`
-                    : `<img src="saknas.jpg" alt="Ingen bild" class="item-image" onerror="handleImageError(this)">`;
-
-                let buttonHtml = '';
-                if (isLocked) {
-                    const encodedPass = btoa(unescape(encodeURIComponent(file.password)));
-                    const encodedHint = btoa(unescape(encodeURIComponent(file.passwordHint || '')));
-                    buttonHtml = `<button class="download-btn btn-locked" onclick="promptPassword('${file.pdf}', '${encodedPass}', '${encodedHint}')">[ LÅST MATERIAL - DEKRYPTERA ]</button>`;
-                } else {
-                    buttonHtml = `<a href="${file.pdf}" class="download-btn" download>[ ladda ner pdf ]</a>`;
-                }
-
-                listItem.innerHTML = `
-                    <div class="image-container">
-                        ${imgHtml}
-                    </div>
-                    <div class="item-details">
-                        <div>
-                            <h3 class="item-title">> ${file.title} ${isLocked ? ' (KRYPTERAD)' : ''}</h3>
-                            <p class="item-description">${file.desc}</p>
-                        </div>
-                        ${buttonHtml}
-                    </div>
-                `;
-                listContainer.appendChild(listItem);
-            });
-        }
-
-        function handleImageError(imageElement) {
-            const container = imageElement.parentElement;
-            imageElement.remove();
-            container.innerHTML = `
-                <svg class="fallback-svg" viewBox="0 0 24 24">
-                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
-                </svg>
-            `;
-        }
-
-        // SÖKFILTRERING
-        function filterFiles() {
-            const query = document.getElementById("search-bar").value.toLowerCase();
-            const items = document.querySelectorAll(".archive-item");
-            const noResults = document.getElementById("no-results-msg");
-            let hasMatch = false;
-
-            items.forEach(item => {
-                const title = item.getAttribute("data-title").toLowerCase();
-                const desc = item.getAttribute("data-desc").toLowerCase();
-
-                if (title.includes(query) || desc.includes(query)) {
-                    item.style.display = "flex";
-                    hasMatch = true;
-                } else {
-                    item.style.display = "none";
-                }
-            });
-
-            noResults.style.display = hasMatch ? "none" : "block";
-        }
-
-        // 5. ADMIN LOGIK & AUTENTISERING
-        function toggleAdminPanel() {
-            const panel = document.getElementById("admin-panel");
-            panel.style.display = panel.style.display === "block" ? "none" : "block";
-            if (panel.style.display === "block") {
-                panel.scrollIntoView({ behavior: 'smooth' });
-            }
-        }
-
-        function togglePasswordFields() {
-            const checkbox = document.getElementById("enable-password");
-            const fields = document.getElementById("password-fields");
-            fields.style.display = checkbox.checked ? "block" : "none";
-        }
-
-        function loadCredentials() {
-            if (localStorage.getItem('git_username')) {
-                document.getElementById('git-username').value = localStorage.getItem('git_username');
-            }
-            if (localStorage.getItem('git_repo')) {
-                document.getElementById('git-repo').value = localStorage.getItem('git_repo');
-            }
-            if (localStorage.getItem('git_token')) {
-                document.getElementById('git-token').value = localStorage.getItem('git_token');
-            }
-        }
-
-        function saveCredentials(username, repo, token) {
-            localStorage.setItem('git_username', username);
-            localStorage.setItem('git_repo', repo);
-            localStorage.setItem('git_token', token);
-        }
-
-        function logUpload(text) {
-            const logBox = document.getElementById("upload-log");
-            logBox.style.display = "block";
-            logBox.textContent += `> ${text}\n`;
-            logBox.scrollTop = logBox.scrollHeight;
-        }
-
-        // 6. UPPLADDNINGSPROCESSEN VIA GITHUB API
-        async function startPublishProcess() {
-            const logBox = document.getElementById("upload-log");
-            logBox.textContent = ''; 
-
-            const username = document.getElementById("git-username").value.trim();
-            const repo = document.getElementById("git-repo").value.trim();
-            const token = document.getElementById("git-token").value.trim();
-
-            const title = document.getElementById("new-title").value.trim().toUpperCase();
-            const desc = document.getElementById("new-desc").value.trim();
-            const pdfFile = document.getElementById("new-pdf-file").files[0];
-            const imgFile = document.getElementById("new-img-file").files[0];
-
-            const hasPassword = document.getElementById("enable-password").checked;
-            const password = hasPassword ? document.getElementById("new-password").value.trim() : "";
-            const passwordHint = hasPassword ? document.getElementById("new-hint").value.trim() : "";
-
-            if (!username || !repo || !token) {
-                showModal("AUTENTISERINGSFEL", "Du måste ange dina GitHub-uppgifter samt din Personal Access Token.");
-                return;
-            }
-            if (!title || !desc || !pdfFile) {
-                showModal("INDATAFEL", "Du måste som minimum ange en titel, en beskrivning och välja en PDF-fil.");
-                return;
-            }
-            if (hasPassword && !password) {
-                showModal("LÖSENORDSFEL", "Du har valt att lösenordsskydda filen men inte skrivit in något lösenord.");
-                return;
-            }
-
-            saveCredentials(username, repo, token);
-            logUpload("Kopplar upp mot GitHub API...");
-            
-            try {
-                const pdfName = `pdf_${Date.now()}_${pdfFile.name.replace(/[^a-zA-Z0-9\.]/g, "_")}`;
-                let imgName = "";
-
-                // 1. Ladda upp PDF till GitHub
-                logUpload(`Konverterar PDF-fil: ${pdfFile.name}...`);
-                const pdfBase64 = await toBase64(pdfFile);
-                logUpload("Laddar upp PDF-filen direkt till ditt repository...");
-                await uploadFileToGit(username, repo, token, pdfName, pdfBase64, `Upload PDF: ${pdfName}`);
-
-                // 2. Ladda upp Bild (om vald)
-                if (imgFile) {
-                    imgName = `img_${Date.now()}_${imgFile.name.replace(/[^a-zA-Z0-9\.]/g, "_")}`;
-                    logUpload(`Konverterar bildfil: ${imgFile.name}...`);
-                    const imgBase64 = await toBase64(imgFile);
-                    logUpload("Laddar upp bildfilen direkt till ditt repository...");
-                    await uploadFileToGit(username, repo, token, imgName, imgBase64, `Upload Image: ${imgName}`);
-                }
-
-                // 3. Spara ner till files.json
-                logUpload("Uppdaterar filarkivets register (files.json)...");
-                const newFileData = {
-                    title: title,
-                    desc: desc,
-                    pdf: pdfName,
-                    img: imgName
-                };
-
-                if (hasPassword) {
-                    newFileData.password = password;
-                    newFileData.passwordHint = passwordHint;
-                }
-
-                await updateRegistryJson(username, repo, token, newFileData);
-
-                logUpload("=========================================");
-                logUpload("KLART! RETRO-DOKUMENTET HAR PUBLICERATS!");
-                logUpload("=========================================");
-                logUpload("GitHub Pages bygger nu om din hemsida.");
-                logUpload("Det blir synligt för alla besökare om ca 30-60 sekunder!");
-                
-                showModal("UPPLADDNING KLAR", "Ditt dokument har skickats till GitHub! Det blir synligt här på sidan inom ungefär en minut.");
-
-                document.getElementById("new-title").value = '';
-                document.getElementById("new-desc").value = '';
-                document.getElementById("new-pdf-file").value = '';
-                document.getElementById("new-img-file").value = '';
-                document.getElementById("enable-password").checked = false;
-                document.getElementById("new-password").value = '';
-                document.getElementById("new-hint").value = '';
-                togglePasswordFields();
-
-            } catch (error) {
-                logUpload(`KRITISKT SYSTEMFEL: ${error.message}`);
-                showModal("PUBLICERINGSFEL", `Något gick snett under överföringen: ${error.message}`);
-            }
-        }
-
-        function toBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = () => {
-                    const base64String = reader.result.split(',')[1];
-                    resolve(base64String);
-                };
-                reader.onerror = error => reject(error);
-            });
-        }
-
-        async function uploadFileToGit(username, repo, token, path, base64Content, commitMsg) {
-            const url = `https://api.github.com/repos/${username}/${repo}/contents/${path}`;
-            const body = {
-                message: commitMsg,
-                content: base64Content
-            };
-
-            const response = await fetch(url, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `token ${token}`,
-                    'Accept': 'application/vnd.github.v3+json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(body)
-            });
-
-            if (!response.ok) {
-                const errData = await response.json();
-                throw new Error(errData.message || "Gick inte att spara filen på GitHub.");
-            }
-        }
-
-        async function updateRegistryJson(username, repo, token, newFileObj) {
-            const path = 'files.json';
-            const url = `https://api.github.com/repos/${username}/${repo}/contents/${path}`;
-            let currentSha = null;
-            let fileList = [...defaultFiles]; 
-
-            try {
-                const getResponse = await fetch(url, {
-                    headers: { 'Authorization': `token ${token}` }
-                });
-
-                if (getResponse.ok) {
-                    const data = await getResponse.json();
-                    currentSha = data.sha;
-                    const decodedText = atob(data.content.replace(/\s/g, ''));
-                    const utf8Decoder = new TextDecoder('utf-8');
-                    const arrayBuffer = new Uint8Array(decodedText.split('').map(c => c.charCodeAt(0)));
-                    fileList = JSON.parse(utf8Decoder.decode(arrayBuffer));
-                }
-            } catch (e) {
-                logUpload("Skapar en helt ny files.json registerfil...");
-            }
-
-            fileList.unshift(newFileObj);
-
-            const jsonString = JSON.stringify(fileList, null, 2);
-            const utf8Encoder = new TextEncoder();
-            const bytes = utf8Encoder.encode(jsonString);
-            let binary = '';
-            const len = bytes.byteLength;
-            for (let i = 0; i < len; i++) {
-                binary += String.fromCharCode(bytes[i]);
-            }
-            const encodedContent = btoa(binary);
-
-            const body = {
-                message: "Update file database files.json",
-                content: encodedContent
-            };
-
-            if (currentSha) {
-                body.sha = currentSha; 
-            }
-
-            const response = await fetch(url, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `token ${token}`,
-                    'Accept': 'application/vnd.github.v3+json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(body)
-            });
-
-            if (!response.ok) {
-                const errData = await response.json();
-                throw new Error("Kunde inte spara uppdateringen i files.json databasen: " + errData.message);
-            }
-        }
-    </script>
+        adminLog(`🎉 [OK] DATABAS SYNCHRONIZED! '${title}' är nu upplagd!`, false);
+        playSuccess();
+        logSystem(`Nytt dokument '${title}' publicerat live på GitHub!`);
+        
+        // Force refresh listing from updated state
+        currentArchives = dbArray;
+        renderArchives();
+        
+        // Reset form inputs
+        document.getElementById('uploadForm').reset();
+        
+      } catch(err) {
+        adminLog(`❌ FEL VID ÖVERFÖRING: ${err.message}`, true);
+        playError();
+        logSystem(`Fel vid uppladdning: ${err.message}`);
+      }
+    }
+  </script>
 </body>
 </html>
-
-```
