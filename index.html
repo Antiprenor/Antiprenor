@@ -1,0 +1,696 @@
+```html
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NO:A // SKJUT DOM I HUVUDET</title>
+    
+    <!-- Retrotypsnitt -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
+    
+    <style>
+        /* FÄRGTEMAN (ZOMBIE-APOKALYPS) */
+        :root {
+            --primary: #33ff66;
+            --primary-dim: #11aa44;
+            --primary-dark: #002200;
+            --bg: #050b06;
+            --glow: rgba(51, 255, 102, 0.35);
+            --danger: #ff3333;
+            --danger-dim: #990000;
+            --danger-glow: rgba(255, 51, 51, 0.35);
+        }
+
+        .theme-amber {
+            --primary: #ffb000;
+            --primary-dim: #cc8800;
+            --primary-dark: #221500;
+            --bg: #080500;
+            --glow: rgba(255, 176, 0, 0.35);
+        }
+
+        .theme-cyan {
+            --primary: #00e5ff;
+            --primary-dim: #0099aa;
+            --primary-dark: #001f33;
+            --bg: #00060a;
+            --glow: rgba(0, 229, 255, 0.35);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--primary);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 17px;
+            line-height: 1.5;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* CRT OCH SCANLINES SKÄRMEFFEKT */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            z-index: 9999;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        .crt-vignette {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle, transparent 60%, rgba(0,0,0,0.85) 150%);
+            pointer-events: none;
+            z-index: 9998;
+        }
+
+        /* TEXTGLÖD */
+        h1, h2, h3, p, a, span, label, input, textarea, button {
+            text-shadow: 0 0 6px var(--glow);
+        }
+
+        /* HEADER */
+        .game-title {
+            color: var(--danger);
+            font-family: 'VT323', monospace;
+            font-size: 1.8rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin: 0;
+            text-shadow: 0 0 8px rgba(255, 51, 51, 0.6);
+        }
+
+        h1 {
+            font-family: 'VT323', monospace;
+            font-size: 3rem;
+            margin: 5px 0 15px 0;
+            text-transform: uppercase;
+            border-bottom: 2px dashed var(--primary);
+            padding-bottom: 15px;
+            letter-spacing: 1px;
+        }
+
+        /* NAVIGATIONSTABBAR för terminalen */
+        .terminal-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            background: rgba(0,0,0,0.6);
+            color: var(--primary);
+            border: 2px solid var(--primary-dim);
+            padding: 8px 15px;
+            font-family: inherit;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+
+        .nav-tab:hover, .nav-tab.active-tab {
+            background: var(--primary);
+            color: var(--bg);
+            border-color: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+            text-shadow: none;
+        }
+
+        .nav-tab.danger-tab {
+            color: var(--danger);
+            border-color: var(--danger-dim);
+        }
+
+        .nav-tab.danger-tab:hover, .nav-tab.danger-tab.active-tab {
+            background: var(--danger);
+            color: #fff;
+            border-color: var(--danger);
+            box-shadow: 0 0 10px var(--danger);
+            text-shadow: none;
+        }
+
+        /* KONTROLLER */
+        .control-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            border: 1px solid var(--primary-dim);
+            padding: 10px 15px;
+            margin-bottom: 25px;
+            background-color: rgba(0, 0, 0, 0.4);
+            font-size: 14px;
+        }
+
+        .theme-btn {
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            font-family: inherit;
+            padding: 2px 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .theme-btn:hover, .theme-btn.active {
+            background-color: var(--primary);
+            color: var(--bg);
+            text-shadow: none;
+            box-shadow: 0 0 8px var(--primary);
+        }
+
+        /* SÖKFÄLT */
+        .search-container {
+            width: 100%;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            border: 2px solid var(--primary);
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 10px 15px;
+        }
+
+        .search-input {
+            background: transparent;
+            border: none;
+            color: var(--primary);
+            font-family: inherit;
+            font-size: 18px;
+            width: 100%;
+            outline: none;
+        }
+
+        /* BOOT-SKÄRM */
+        #boot-screen {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: var(--bg);
+            z-index: 10000;
+            padding: 30px;
+            font-family: 'Share Tech Mono', monospace;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .boot-text {
+            white-space: pre-wrap;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .skip-btn {
+            align-self: flex-start;
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 5px 15px;
+            font-family: inherit;
+            cursor: pointer;
+            text-transform: uppercase;
+            margin-top: auto;
+        }
+
+        .skip-btn:hover {
+            background: var(--primary);
+            color: var(--bg);
+        }
+
+        /* FILARKIVET */
+        .archive-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .archive-item {
+            border: 2px solid var(--primary);
+            margin-bottom: 30px;
+            background-color: rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .archive-item.locked-item {
+            border-color: var(--danger);
+            background-color: rgba(20, 0, 0, 0.2);
+        }
+
+        @media (min-width: 600px) {
+            .archive-item { flex-direction: row; }
+        }
+
+        /* BILD-CONTAINER */
+        .image-container {
+            width: 100%;
+            height: 180px;
+            background-color: var(--primary-dark);
+            border-bottom: 2px solid var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .locked-item .image-container {
+            background-color: var(--danger-dim);
+            border-bottom-color: var(--danger);
+        }
+
+        @media (min-width: 600px) {
+            .image-container {
+                width: 180px;
+                height: 180px;
+                border-bottom: none;
+                border-right: 2px solid var(--primary);
+            }
+            .locked-item .image-container {
+                border-right-color: var(--danger);
+            }
+        }
+
+        .item-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            image-rendering: pixelated;
+        }
+
+        .fallback-svg {
+            width: 70px;
+            height: 70px;
+            fill: var(--primary);
+            filter: drop-shadow(0 0 5px var(--glow));
+        }
+
+        .locked-item .fallback-svg {
+            fill: var(--danger);
+            filter: drop-shadow(0 0 5px var(--danger-glow));
+        }
+
+        /* DETALJER */
+        .item-details {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .item-title {
+            font-size: 24px;
+            margin: 0 0 8px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .locked-item .item-title {
+            color: var(--danger);
+            text-shadow: 0 0 6px var(--danger-glow);
+        }
+
+        .item-description {
+            font-size: 16px;
+            color: var(--primary-dim);
+            margin: 0 0 20px 0;
+        }
+
+        .locked-item .item-description {
+            color: #b36666;
+        }
+
+        /* RETRO-KNAPP */
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--primary);
+            color: var(--bg);
+            padding: 10px 20px;
+            text-decoration: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            border: 2px solid var(--primary);
+            align-self: flex-start;
+            box-shadow: 4px 4px 0px var(--primary-dark);
+            transition: all 0.1s;
+            font-family: inherit;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .download-btn:hover {
+            background-color: var(--bg);
+            color: var(--primary);
+            box-shadow: 0px 0px 0px var(--primary-dark);
+            transform: translate(4px, 4px);
+            text-shadow: none;
+        }
+
+        .download-btn.btn-locked {
+            background-color: var(--danger);
+            border-color: var(--danger);
+            color: #fff;
+            box-shadow: 4px 4px 0px #4d0000;
+        }
+
+        .download-btn.btn-locked:hover {
+            background-color: var(--bg);
+            color: var(--danger);
+            box-shadow: 0px 0px 0px #4d0000;
+            text-shadow: 0 0 6px var(--danger-glow);
+        }
+
+        /* ==========================================================================
+           ZOMBIEGENERATORN STYLING
+           ========================================================================== */
+        .generator-container {
+            border: 2px solid var(--danger);
+            background-color: rgba(15, 0, 0, 0.4);
+            padding: 25px;
+            box-shadow: 0 0 15px rgba(255, 51, 51, 0.15);
+            margin-bottom: 30px;
+        }
+
+        .generator-header {
+            color: var(--danger);
+            border-bottom: 2px solid var(--danger);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .generator-header h2 {
+            margin: 0;
+            font-family: 'VT323', monospace;
+            font-size: 2.2rem;
+            letter-spacing: 2px;
+        }
+
+        .radar-scan-box {
+            background-color: #000;
+            border: 1px solid var(--danger-dim);
+            height: 10px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .radar-bar {
+            background: linear-gradient(90deg, transparent, var(--danger), transparent);
+            width: 150px;
+            height: 100%;
+            position: absolute;
+            left: -150px;
+            animation: radar-sweep 2.5s infinite linear;
+        }
+
+        @keyframes radar-sweep {
+            0% { left: -150px; }
+            100% { left: 100%; }
+        }
+
+        /* Tactical display grid */
+        .tactical-display {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 650px) {
+            .tactical-display {
+                grid-template-columns: 3fr 2fr;
+            }
+        }
+
+        .display-screen {
+            background-color: #000;
+            border: 1px solid var(--danger);
+            padding: 20px;
+            min-height: 280px;
+            font-family: 'Share Tech Mono', monospace;
+            color: var(--danger);
+            text-shadow: 0 0 5px var(--danger-glow);
+            overflow-y: auto;
+        }
+
+        .bio-stats-box {
+            border: 1px dashed var(--danger-dim);
+            padding: 15px;
+            background: rgba(40, 0, 0, 0.2);
+        }
+
+        .stat-line {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dotted rgba(255, 51, 51, 0.2);
+            padding: 6px 0;
+            font-size: 15px;
+        }
+
+        .stat-label {
+            font-weight: bold;
+            color: #ff8888;
+        }
+
+        .stat-value {
+            color: #fff;
+        }
+
+        .gen-btn {
+            background-color: var(--danger);
+            color: #fff;
+            border: 2px solid var(--danger);
+            padding: 12px 25px;
+            font-family: inherit;
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255,51,51,0.4);
+            transition: all 0.2s;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .gen-btn:hover {
+            background-color: transparent;
+            color: var(--danger);
+            box-shadow: 0 0 15px var(--danger);
+        }
+
+        /* Flicker-effekt vid ny rullning */
+        .flicker-anim {
+            animation: terminal-flicker 0.4s ease-out;
+        }
+
+        @keyframes terminal-flicker {
+            0% { opacity: 0.2; }
+            20% { opacity: 0.9; }
+            40% { opacity: 0.3; }
+            60% { opacity: 0.8; }
+            80% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* ADMIN SECTION */
+        .admin-toggle {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .admin-link {
+            color: var(--primary-dim);
+            text-decoration: none;
+            font-size: 14px;
+            border: 1px dashed var(--primary-dim);
+            padding: 5px 15px;
+            cursor: pointer;
+            background: transparent;
+        }
+
+        .admin-link:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .admin-panel {
+            display: none;
+            border: 2px solid var(--danger);
+            background-color: rgba(15, 0, 0, 0.9);
+            padding: 20px;
+            margin-top: 30px;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+        }
+
+        .admin-panel h2 {
+            color: var(--danger);
+            text-transform: uppercase;
+            margin-top: 0;
+            border-bottom: 1px solid var(--danger);
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            color: var(--primary);
+        }
+
+        .form-control {
+            background-color: #000;
+            border: 1px solid var(--primary-dim);
+            color: var(--primary);
+            font-family: inherit;
+            font-size: 16px;
+            padding: 8px;
+            outline: none;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 5px var(--primary);
+        }
+
+        .admin-btn {
+            background-color: var(--danger);
+            color: #fff;
+            border: 2px solid var(--danger);
+            padding: 10px 20px;
+            font-family: inherit;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .admin-btn:hover {
+            background-color: transparent;
+            color: var(--danger);
+        }
+
+        .terminal-log {
+            background-color: #000;
+            border: 1px solid var(--danger);
+            padding: 10px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 13px;
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 15px;
+            white-space: pre-wrap;
+            color: #ff8888;
+        }
+
+        /* CUSTOM MODAL FÖR MEDDELANDEN */
+        .custom-modal {
+            display: none;
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid var(--primary);
+            background-color: var(--bg);
+            padding: 25px;
+            z-index: 10001;
+            box-shadow: 0 0 30px rgba(0,0,0,0.95);
+            width: 90%;
+            max-width: 480px;
+        }
+
+        .custom-modal-header {
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--primary-dim);
+            padding-bottom: 5px;
+        }
+
+        .custom-modal-btn {
+            background: var(--primary);
+            color: var(--bg);
+            border: none;
+            padding: 8px 18px;
+            font-family: inherit;
+            font-weight: bold;
+            margin-top: 15px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            border: 2px dashed var(--primary-dim);
+            font-size: 18px;
+            display: none;
+        }
+
+        footer {
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 1px solid var(--primary-dim);
+            font-size: 13px;
+            color: var(--primary-dim);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .cursor-blink {
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
+        }
+    </style>
+</head>
+<body class="theme-green">
+
+    <div class="crt-vignette"></div>
+
+    <!-- BOOT SKÄRM -->
+    <div id="boot-screen">
+        <div class="boot-text" id="boot-log"></div>
+        <button class="skip-btn" onclick="skipBoot()">[ AVBRYT INLOGGNINGSPROTOKOLL ]</button>
+    </div>
+
+    <!-- INTERNT MEDDELANDE-FÖNSTER (ERSÄTTER BROWSER ALERTS) -->
+    <div id="custom-modal" class="custom-modal">
+        <div id="modal-title" class="custom-modal-header">SYSTEMMEDDELANDE</div>
+        <div id="modal-body">Innehåll</div>
+        <button class="custom-modal-btn" onclick="closeModal()">STÄNG</button>
+    </div>
+
+    <!-- SPELLÖSENORDSKONTROLL MODAL -->
+    <div id="password-modal" class="custom-modal" style="border-color: var(--danger); background-color: rgba(15, 0, 0, 0.95);">
+        <div class="custom-modal-header" style="color: var(--danger); border-bottom-color: var(--danger); font-size: 1.2rem;">
+            SÄKERHETSBEGRÄNSAD ÅTKOMST
+        </div>
+        <p id="password-hin
