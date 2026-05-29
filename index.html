@@ -179,7 +179,7 @@
       box-shadow: inset 0 0 10px var(--glow);
     }
 
-    /* Ticker marquee styling */
+    /* Ticker marquee styling with broad mobile compatibility */
     .ticker-container {
       overflow: hidden;
       white-space: nowrap;
@@ -190,13 +190,22 @@
       display: inline-block;
       white-space: nowrap;
       will-change: transform;
+      -webkit-animation: marquee-scroll 20s linear infinite;
+      animation: marquee-scroll 20s linear infinite;
+    }
+    
+    @-webkit-keyframes marquee-scroll {
+      0% { -webkit-transform: translate3d(100%, 0, 0); transform: translate3d(100%, 0, 0); }
+      100% { -webkit-transform: translate3d(-100%, 0, 0); transform: translate3d(-100%, 0, 0); }
     }
     @keyframes marquee-scroll {
-      0% { transform: translate3d(100%, 0, 0); }
-      100% { transform: translate3d(-100%, 0, 0); }
+      0% { -webkit-transform: translate3d(100%, 0, 0); transform: translate3d(100%, 0, 0); }
+      100% { -webkit-transform: translate3d(-100%, 0, 0); transform: translate3d(-100%, 0, 0); }
     }
+    
     /* Pause scroll on hover/touch */
     .ticker-text:hover, .ticker-text:active {
+      -webkit-animation-play-state: paused;
       animation-play-state: paused;
     }
   </style>
@@ -476,6 +485,21 @@
       ]
     };
 
+    // Helper för att lösa trailing-slash problem på GitHub Pages
+    function getRelativePath(filename) {
+      let path = window.location.pathname;
+      if (!path.endsWith('/')) {
+        const segments = path.split('/');
+        const lastSegment = segments[segments.length - 1];
+        if (!lastSegment.includes('.')) {
+          path += '/';
+        } else {
+          path = path.substring(0, path.lastIndexOf('/') + 1);
+        }
+      }
+      return window.location.origin + path + filename;
+    }
+
     let audioCtx = null;
     let humNode = null;
     let audioEnabled = false;
@@ -747,9 +771,10 @@
     let tipsList = [...CONFIG.DEFAULT_TIPS];
 
     async function loadTipsFromGitHub() {
-      // Skapa en array med sökvägar att testa. Relativ sökväg först (bäst på GitHub Pages), sedan absolut!
+      // Skapa en array med sökvägar att testa. Relativ korrigerad sökväg först, sedan absolut!
+      const resolvedRelativeUrl = getRelativePath("zombietips.txt");
       const urlsToTry = [
-        `zombietips.txt?t=${Date.now()}`,
+        `${resolvedRelativeUrl}?t=${Date.now()}`,
         `${CONFIG.TIPS_URL}?t=${Date.now()}`
       ];
       
@@ -760,7 +785,6 @@
           const response = await fetch(url);
           if (response.ok) {
             fetchedText = await response.text();
-            logSystem(`Anslutning upprättad till zombietips.txt!`);
             break;
           }
         } catch (err) {
@@ -775,7 +799,7 @@
         
         if (parsedTips.length > 0) {
           tipsList = parsedTips;
-          logSystem(`Framgångsrikt synkroniserat ${tipsList.length} speltips.`);
+          logSystem(`Framgångsrikt synkroniserat ${tipsList.length} speltips från zombietips.txt.`);
         } else {
           logSystem("Varning: zombietips.txt hittades men var tom. Laddar reservrekommendationer.");
         }
@@ -794,14 +818,15 @@
       const tipTextEl = document.getElementById('tipText');
       tipTextEl.innerText = tipsList[randomIndex];
       
-      // Dynamic animation duration depending on text character length
-      // 1.5 seconds per 10 characters (approx. reading speed) with minimum 12s and max 45s
+      // Beräkna hastighet baserat på textens längd
       const textLen = tipsList[randomIndex].length;
       const duration = Math.max(12, Math.min(45, textLen * 0.15));
       
-      // Reset CSS animation trigger to run it from start
+      // Starta om CSS-animering med fullständig Webkit-kompatibilitet
+      tipTextEl.style.webkitAnimation = 'none';
       tipTextEl.style.animation = 'none';
-      tipTextEl.offsetHeight; // trigger reflow
+      tipTextEl.offsetHeight; // tvinga rendering/reflow
+      tipTextEl.style.webkitAnimation = `marquee-scroll ${duration}s linear infinite`;
       tipTextEl.style.animation = `marquee-scroll ${duration}s linear infinite`;
     }
 
@@ -868,9 +893,9 @@
 
     // Attempt to load index from Github
     async function loadArchivesFromGitHub() {
-      // Försök hämta databasen relativt först (bäst på GitHub Pages), sedan absolut via rå CDN!
+      const resolvedRelativeUrl = getRelativePath("archives/files.json");
       const urlsToTry = [
-        `archives/files.json?t=${Date.now()}`,
+        `${resolvedRelativeUrl}?t=${Date.now()}`,
         `${CONFIG.DATABASE_URL}?t=${Date.now()}`
       ];
       
