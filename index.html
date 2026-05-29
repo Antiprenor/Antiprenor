@@ -197,11 +197,11 @@
         <header class="border-b border-dashed border-[var(--primary)] pb-4 mb-4">
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
             <div>
-              <p class="text-sm tracking-widest opacity-80 uppercase font-mono">
-                [ KRIGSMATERIELVERKETS RETRO-NETWERK // APOCALYPSE v1.986 ]
+              <p id="headerSubText" class="text-sm tracking-widest opacity-80 uppercase font-mono">
+                [ LADDAR SYSTEMINTRUKTION... ]
               </p>
               <h1 class="text-3xl sm:text-5xl font-bold tracking-wider uppercase text-glow flex items-center gap-2">
-                <span>SKJUT DOM I HUVUDET</span>
+                <span id="headerMainText">LADDAR TITEL...</span>
                 <span class="text-xs bg-[var(--primary)] text-black px-1.5 py-0.5 rounded blink font-bold">LIVE</span>
               </h1>
             </div>
@@ -240,7 +240,7 @@
                   <span>📂 DEKLASSIFICERADE ARKIV</span>
                 </h2>
                 <!-- Local Filter Search -->
-                <input type="text" id="archiveSearch" oninput="filterArchives()" placeholder="Sök i arkivet..." class="bg-black text-[var(--primary)] border border-[var(--primary)] px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--primary)] w-48">
+                <input type="text" id="archiveSearch" oninput="filterArchives()" placeholder="Sök i arkivet..." class="bg-black text-[var(--primary)] border border-[var(--primary)] px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--primary)] w-48 font-mono">
               </div>
 
               <!-- Main Dynamic Files Area -->
@@ -250,30 +250,57 @@
               </div>
             </div>
 
-            <!-- RPG Tips ticker -->
+            <!-- RPG Tips ticker (Fetches dynamically from tips.txt) -->
             <div class="mt-4 p-2 bg-black border border-dashed border-[var(--primary)] text-sm opacity-80 flex items-center justify-between">
-              <div>
-                <span class="font-bold text-glow">[ÖVERLEVNADSTIPS #<span id="tipNum">01</span>]:</span>
-                <span id="tipText">Håll tyst. Ljud lockar till sig dom döda. Rikta alltid skottet mot pannan.</span>
+              <div class="truncate mr-2">
+                <span class="font-bold text-glow flex-shrink-0">[MEDDELANDE #<span id="tipNum">01</span>]:</span>
+                <span id="tipText" class="italic">Ansluter till fältsändning...</span>
               </div>
-              <button onclick="nextTip()" class="underline hover:text-white cursor-pointer ml-2">NÄSTA</button>
+              <button onclick="nextTip()" class="underline hover:text-white cursor-pointer ml-2 flex-shrink-0 font-bold">SLUMPVIS</button>
             </div>
           </section>
 
           <!-- RIGHT PANEL: UTILITIES & SYSTEM DIALOG -->
           <section class="border-t lg:border-t-0 lg:border-l border-dashed border-[var(--primary)] pt-4 lg:pt-0 lg:pl-4 flex flex-col gap-4">
             
-            <!-- Quick Dice Roller (Highly Useful RPG Feature!) -->
-            <div class="border border-[var(--primary)] p-3 bg-black flex flex-col gap-2">
-              <h3 class="text-lg font-bold text-glow border-b border-[var(--primary)] pb-1">🎲 STRIDSKALKYLATOR (TÄRNING)</h3>
-              <div class="grid grid-cols-3 gap-1">
-                <button onclick="rollDice(10)" class="btn-terminal text-sm p-1">T10</button>
-                <button onclick="rollDice(20)" class="btn-terminal text-sm p-1">T20</button>
-                <button onclick="rollDice(100)" class="btn-terminal text-sm p-1">T100</button>
+            <!-- Quick Dice Roller (Highly Upgraded RPG Feature) -->
+            <div class="border border-[var(--primary)] p-3 bg-black flex flex-col gap-2 text-xs">
+              <h3 class="text-base font-bold text-glow border-b border-[var(--primary)] pb-1">🎲 STRIDSKALKYLATOR</h3>
+              
+              <!-- Dice Inputs -->
+              <div class="grid grid-cols-2 gap-2 font-mono">
+                <div>
+                  <label class="block mb-1 opacity-70">ANTAL TÄRNINGAR:</label>
+                  <input type="number" id="diceCount" value="1" min="1" max="50" class="w-full bg-black text-[var(--primary)] border border-[var(--primary)] p-1 text-center focus:outline-none focus:ring-1 focus:ring-[var(--primary)]">
+                </div>
+                <div>
+                  <label class="block mb-1 opacity-70">TÄRNINGSSIDOR:</label>
+                  <input type="number" id="diceSides" value="10" min="2" max="1000" class="w-full bg-black text-[var(--primary)] border border-[var(--primary)] p-1 text-center focus:outline-none focus:ring-1 focus:ring-[var(--primary)]">
+                </div>
               </div>
-              <div class="bg-black border border-dashed border-[var(--primary)] p-2 text-center h-16 flex flex-col justify-center items-center">
-                <p class="text-xs opacity-60">RESULTAT</p>
-                <p id="diceResult" class="text-2xl font-bold tracking-widest text-glow">-</p>
+
+              <!-- Presets Row -->
+              <div class="grid grid-cols-4 gap-1">
+                <button onclick="setDicePreset(6)" class="btn-terminal p-1 text-[10px] font-mono">T6</button>
+                <button onclick="setDicePreset(10)" class="btn-terminal p-1 text-[10px] font-mono">T10</button>
+                <button onclick="setDicePreset(20)" class="btn-terminal p-1 text-[10px] font-mono">T20</button>
+                <button onclick="setDicePreset(100)" class="btn-terminal p-1 text-[10px] font-mono">T100</button>
+              </div>
+
+              <!-- OB Exploding Checkbox -->
+              <label class="flex items-center gap-2 cursor-pointer py-1">
+                <input type="checkbox" id="diceOb" class="accent-[var(--primary)] cursor-pointer">
+                <span class="font-bold text-glow tracking-wide select-none">OB (EXPLODERANDE UTFALL)</span>
+              </label>
+
+              <!-- Trigger roll -->
+              <button onclick="triggerRoll()" class="btn-terminal w-full py-1.5 font-bold tracking-widest text-xs uppercase">AKTIVERA STRIDSKALKYLATOR</button>
+
+              <!-- Result Screen -->
+              <div class="bg-black border border-dashed border-[var(--primary)] p-2 text-center h-20 flex flex-col justify-center items-center overflow-hidden">
+                <p class="text-[10px] opacity-60 font-mono">BERÄKNAD EFFEKT</p>
+                <p id="diceResult" class="text-3xl font-bold tracking-widest text-glow font-mono">-</p>
+                <p id="diceBreakdown" class="text-[11px] opacity-80 truncate max-w-full font-mono text-gray-400"></p>
               </div>
             </div>
 
@@ -281,7 +308,7 @@
             <div class="flex-grow flex flex-col justify-between">
               <div class="border border-[var(--primary)] p-3 bg-black flex-grow">
                 <h3 class="text-sm font-bold text-glow mb-1">📟 SYSTEMDIAGNOSTIK</h3>
-                <div id="systemLog" class="text-xs font-mono space-y-1 h-36 lg:h-52 overflow-y-auto">
+                <div id="systemLog" class="text-xs font-mono space-y-1 h-36 lg:h-48 overflow-y-auto">
                   <p class="text-gray-500">[10:13:02] Terminal uppstartad.</p>
                   <p class="text-gray-500">[10:13:04] Ansluter till mil-nätverk...</p>
                   <p class="text-[var(--primary)]">[OK] Säkrat gränssnitt upprättat.</p>
@@ -322,7 +349,7 @@
         
         <div class="flex justify-between items-center border-b border-[var(--primary)] pb-2 mb-4">
           <h2 class="text-2xl font-bold text-glow">🛠️ ADMINISTRATÖRSKONSOL - GITHUB REPO INTEGRATION</h2>
-          <button onclick="closeAdminPanel()" class="border border-red-500 text-red-500 px-2 py-1 text-xs hover:bg-red-500 hover:text-black">STÄNG [X]</button>
+          <button onclick="closeAdminPanel()" class="border border-red-500 text-red-500 px-2 py-1 text-xs hover:bg-red-500 hover:text-black font-mono">STÄNG [X]</button>
         </div>
 
         <p class="text-sm mb-4 opacity-80 leading-relaxed">
@@ -334,12 +361,12 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 p-4 border border-dashed border-[var(--primary)] bg-black/50">
           <div>
             <label class="block text-xs uppercase font-bold mb-1">GitHub Personal Access Token (PAT):</label>
-            <input type="password" id="githubToken" placeholder="github_pat_..." class="w-full bg-black text-[var(--primary)] border border-[var(--primary)] p-2 focus:outline-none focus:ring-1 focus:ring-[var(--primary)] text-sm">
+            <input type="password" id="githubToken" placeholder="github_pat_..." class="w-full bg-black text-[var(--primary)] border border-[var(--primary)] p-2 focus:outline-none focus:ring-1 focus:ring-[var(--primary)] text-sm font-mono">
             <span class="text-[11px] opacity-70">Spara din token med 'repo' behörighet. Den sparas säkert enbart lokalt i din webbläsare (localStorage).</span>
           </div>
           <div class="flex items-end gap-2">
-            <button onclick="saveToken()" class="btn-terminal text-sm px-4 py-2 flex-grow">SPARA TOKEN</button>
-            <button onclick="clearToken()" class="border border-red-500 text-red-500 hover:bg-red-500 hover:text-black px-3 py-2 text-sm">RADERA</button>
+            <button onclick="saveToken()" class="btn-terminal text-sm px-4 py-2 flex-grow font-bold">SPARA TOKEN</button>
+            <button onclick="clearToken()" class="border border-red-500 text-red-500 hover:bg-red-500 hover:text-black px-3 py-2 text-sm font-bold">RADERA</button>
           </div>
         </div>
 
@@ -393,6 +420,41 @@
 
   <!-- Audio Context and Web-Audio Synthesizer setup -->
   <script>
+    // ==========================================
+    // ⚙️ RETRO TERMINAL CONFIGURATION (KONFIGURATION)
+    // Modifiera dessa variabler för att enkelt byta namn, sökvägar och texter!
+    // ==========================================
+    const CONFIG = {
+      // 1. GITHUB REPOSITORIE-INSTÄLLNINGAR
+      REPO_OWNER: "Antiprenor",
+      REPO_NAME: "Antiprenor",
+      BRANCH: "main",
+      
+      // Sökväg till din tips-textfil på GitHub (Varje ny rad = ett nytt speltips i terminalen)
+      TIPS_URL: "https://raw.githubusercontent.com/Antiprenor/Antiprenor/main/archives/tips.txt",
+      
+      // Sökväg till JSON-dokumentdatabasen på GitHub
+      DATABASE_URL: "https://raw.githubusercontent.com/Antiprenor/Antiprenor/main/archives/files.json",
+
+      // 2. FILÖVERFÖRING (Vart i repot filerna laddas upp av administratören)
+      UPLOAD_DB_PATH: "archives/files.json",
+      UPLOAD_PDF_DIR: "archives/",
+      UPLOAD_IMG_DIR: "archives/images/",
+
+      // 3. TEXTER OCH RUBRIKER PÅ SKÄRMEN
+      HEADER_SUB: "[ KRIGSMATERIELVERKETS RETRO-NETWERK // APOCALYPSE v1.986 ]",
+      HEADER_MAIN: "SKJUT DOM I HUVUDET",
+
+      // 4. INBYGGDA RESERVTIPS (Används om den externa tips.txt-filen inte kan hämtas)
+      DEFAULT_TIPS: [
+        "Håll tyst. Ljud lockar till sig dom döda. Rikta alltid skottet mot pannan.",
+        "Lita inte på militära nödsändningar. De är oftast förinspelade fällor.",
+        "Zonerna fryser fort under vintern. Konserver och kaminbränsle är mer värdefullt än ammunition.",
+        "Symptom på infektion visar sig inom 4 timmar. Feber och röda ådror under huden är slutet.",
+        "Huvudet är den svaga punkten. Missar du skottet dör du."
+      ]
+    };
+
     let audioCtx = null;
     let humNode = null;
     let audioEnabled = false;
@@ -577,47 +639,133 @@
     }
   </script>
 
-  <!-- Dice Roller & RPG Tips script -->
+  <!-- Upgraded Dice Roller & Dynamic Tips loader -->
   <script>
-    function rollDice(sides) {
-      playBeep(300, 'triangle', 0.05, 0.2);
-      let rollCount = 0;
-      const resultEl = document.getElementById('diceResult');
-      
-      // Roll animation effect
-      const interval = setInterval(() => {
-        resultEl.innerText = Math.floor(Math.random() * sides) + 1;
-        rollCount++;
-        if (rollCount > 10) {
-          clearInterval(interval);
-          const finalRoll = Math.floor(Math.random() * sides) + 1;
-          resultEl.innerText = finalRoll;
-          playBeep(520, 'sine', 0.15, 0.3);
-          logSystem(`Rullade T${sides}. Resultat: ${finalRoll}`);
-        }
-      }, 50);
+    // Set Dice presets from quick buttons
+    function setDicePreset(sides) {
+      document.getElementById('diceSides').value = sides;
+      playBeep(400, 'sine', 0.05, 0.1);
     }
 
-    const tips = [
-      "Håll tyst. Ljud lockar till sig dom döda. Rikta alltid skottet mot pannan.",
-      "Lita inte på militära nödsändningar. De är oftast förinspelade fällor.",
-      "Zonerna fryser fort under vintern. Konserver och kaminbränsle är mer värdefullt än ammunition.",
-      "Symptom på infektion visar sig inom 4 timmar. Feber och röda ådror under huden är slutet.",
-      "Huvudet är den svaga punkten. Missar du skottet dör du."
-    ];
-    let currentTipIndex = 0;
+    // Trigger calculation of user parameters
+    function triggerRoll() {
+      const count = parseInt(document.getElementById('diceCount').value) || 1;
+      const sides = parseInt(document.getElementById('diceSides').value) || 6;
+      const obEnabled = document.getElementById('diceOb').checked;
+      
+      if (count < 1 || sides < 2) {
+        logSystem("FEL: Ogiltigt antal tärningar eller sidor.");
+        playError();
+        return;
+      }
+      
+      rollDiceComplex(count, sides, obEnabled);
+    }
+
+    // Complex Exploding Dice Roller (OB-tärningar)
+    function rollDiceComplex(count, sides, obEnabled) {
+      playBeep(300, 'triangle', 0.05, 0.2);
+      
+      const resultEl = document.getElementById('diceResult');
+      const breakdownEl = document.getElementById('diceBreakdown');
+      
+      let animationIntervals = 10;
+      let counter = 0;
+      
+      // Animate simulated rolling
+      const interval = setInterval(() => {
+        const tempSum = Array.from({length: count}, () => Math.floor(Math.random() * sides) + 1).reduce((a,b) => a+b, 0);
+        resultEl.innerText = tempSum + (obEnabled ? "!" : "");
+        breakdownEl.innerText = "KALKYLERAR UTFALL...";
+        counter++;
+        
+        if (counter >= animationIntervals) {
+          clearInterval(interval);
+          
+          let totalSum = 0;
+          let diceDetails = [];
+          
+          for (let i = 0; i < count; i++) {
+            let singleDieSum = 0;
+            let currentRoll = Math.floor(Math.random() * sides) + 1;
+            singleDieSum += currentRoll;
+            
+            let rollSeq = [currentRoll];
+            
+            // Exploding OB mechanic: If roll is maximum possible, roll again
+            if (obEnabled) {
+              while (currentRoll === sides) {
+                currentRoll = Math.floor(Math.random() * sides) + 1;
+                singleDieSum += currentRoll;
+                rollSeq.push(currentRoll);
+              }
+            }
+            
+            totalSum += singleDieSum;
+            
+            // Format single die output string, e.g. "5" or "18(10+8)"
+            if (rollSeq.length > 1) {
+              diceDetails.push(`${singleDieSum} (${rollSeq.join('+')})`);
+            } else {
+              diceDetails.push(`${singleDieSum}`);
+            }
+          }
+          
+          resultEl.innerText = totalSum;
+          const breakdownText = diceDetails.join(' + ');
+          breakdownEl.innerText = count > 1 || obEnabled ? `= ${breakdownText}` : "";
+          
+          playBeep(520, 'sine', 0.15, 0.3);
+          
+          // Log output to system diagnostik logs
+          const obSuffix = obEnabled ? " [OB]" : "";
+          logSystem(`RULLNING: ${count}T${sides}${obSuffix} ➡️ Resultat: <strong class="text-white">${totalSum}</strong> (${breakdownText})`);
+        }
+      }, 60);
+    }
+
+    // RPG Tips loader & switcher
+    let tipsList = [...CONFIG.DEFAULT_TIPS];
+
+    async function loadTipsFromGitHub() {
+      try {
+        const response = await fetch(CONFIG.TIPS_URL);
+        if (response.ok) {
+          const text = await response.text();
+          // Split by newlines, trim, filter out empty rows
+          const parsedTips = text.split('\n')
+                                 .map(line => line.trim())
+                                 .filter(line => line.length > 0);
+          
+          if (parsedTips.length > 0) {
+            tipsList = parsedTips;
+            logSystem("Externa fältsändningstips anslutna framgångsrikt.");
+          }
+        } else {
+          logSystem("Kunde inte nå extern tipsfil. Använder inbyggda krisrekommendationer.");
+        }
+      } catch (err) {
+        logSystem("Tips-databas offline. Laddar inbyggda rekommendationer.");
+      }
+      displayRandomTip();
+    }
+
+    function displayRandomTip() {
+      if (tipsList.length === 0) return;
+      const randomIndex = Math.floor(Math.random() * tipsList.length);
+      document.getElementById('tipNum').innerText = String(randomIndex + 1).padStart(2, '0');
+      document.getElementById('tipText').innerText = tipsList[randomIndex];
+    }
 
     function nextTip() {
-      currentTipIndex = (currentTipIndex + 1) % tips.length;
-      document.getElementById('tipNum').innerText = String(currentTipIndex + 1).padStart(2, '0');
-      document.getElementById('tipText').innerText = tips[currentTipIndex];
+      displayRandomTip();
       playBeep(400, 'sine', 0.05, 0.1);
     }
   </script>
 
   <!-- File System & GitHub Integration Logic -->
   <script>
-    // Local in-memory store for file lists, starting with high quality atmospheric game defaults
+    // Fallback/Standard-dokument i arkivet
     const defaultArchives = [
       {
         id: "survival-guide",
@@ -650,21 +798,26 @@
 
     let currentArchives = [...defaultArchives];
 
-    // Read stored token if available
+    // Main window loader
     window.onload = function() {
+      // Apply UI elements from CONFIG
+      document.getElementById('headerSubText').innerText = CONFIG.HEADER_SUB;
+      document.getElementById('headerMainText').innerText = CONFIG.HEADER_MAIN;
+
       const storedToken = localStorage.getItem('github_token');
       if (storedToken) {
         document.getElementById('githubToken').value = storedToken;
         document.getElementById('sandboxWarning').innerHTML = "🟢 GitHub-token laddat från lokal lagring.";
       }
       
-      // Load files from GitHub (falls back to defaults if not present or failing)
+      // Load archives and external tips from git
       loadArchivesFromGitHub();
+      loadTipsFromGitHub();
     };
 
     // Attempt to load index from Github
     async function loadArchivesFromGitHub() {
-      const jsonUrl = "https://raw.githubusercontent.com/Antiprenor/Antiprenor/main/archives/files.json";
+      const jsonUrl = CONFIG.DATABASE_URL;
       try {
         const response = await fetch(jsonUrl);
         if (response.ok) {
@@ -693,14 +846,7 @@
       }
 
       currentArchives.forEach(archive => {
-        // Fallback or custom image
         const imgPath = archive.imageUrl || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23111'/><text x='50%25' y='50%25' font-family='sans-serif' font-size='10' fill='%2333ff66' dominant-baseline='middle' text-anchor='middle'>ZOMBIE FILE</text></svg>";
-        
-        // Dynamically style based on current theme for vector look
-        let activeThemeColor = 'text-[#33ff66]';
-        if (currentTheme === 'amber') activeThemeColor = 'text-[#ffb000]';
-        if (currentTheme === 'cyan') activeThemeColor = 'text-[#00e5ff]';
-
         const tagsHtml = archive.tags ? archive.tags.map(t => `<span class="border border-[var(--primary)] px-1.5 py-0.2 text-[10px] mr-1">${t.toUpperCase()}</span>`).join('') : '';
 
         const card = document.createElement('div');
@@ -746,7 +892,6 @@
         return;
       }
 
-      // Re-use rendering inside the filter search
       filtered.forEach(archive => {
         const imgPath = archive.imageUrl || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23111'/><text x='50%25' y='50%25' font-family='sans-serif' font-size='10' fill='%2333ff66' dominant-baseline='middle' text-anchor='middle'>ZOMBIE FILE</text></svg>";
         const tagsHtml = archive.tags ? archive.tags.map(t => `<span class="border border-[var(--primary)] px-1.5 py-0.2 text-[10px] mr-1">${t.toUpperCase()}</span>`).join('') : '';
@@ -873,7 +1018,7 @@
         adminLog(`Krypterar: ${pdfFileInput.name} (PDF)...`, false);
         
         setTimeout(() => {
-          adminLog(`Kopplar upp mot fiktiv nod: Antiprenor/Antiprenor...`, false);
+          adminLog(`Kopplar upp mot fiktiv nod: ${CONFIG.REPO_OWNER}/${CONFIG.REPO_NAME}...`, false);
           adminLog(`[SUCCESS] PDF-Filen '${pdfFilename}' simulerades uppladdad!`, false);
           
           let mockImgUrl = "";
@@ -905,15 +1050,15 @@
       // CASE B: GENUINE LIVE GITHUB REPO UPLOAD
       adminLog("Ansluter till GitHub API med angiven token...", false);
       
-      const repoOwner = "Antiprenor";
-      const repoName = "Antiprenor";
-      const branch = "main"; // standard branch
+      const repoOwner = CONFIG.REPO_OWNER;
+      const repoName = CONFIG.REPO_NAME;
+      const branch = CONFIG.BRANCH;
       
       try {
         // 1. Upload PDF binary to repository
         adminLog(`Laddar upp PDF-fil (${pdfFileInput.name}) till GitHub...`);
         const pdfBase64 = await fileToBase64(pdfFileInput);
-        const pdfPath = `archives/${pdfFilename}`;
+        const pdfPath = `${CONFIG.UPLOAD_PDF_DIR}${pdfFilename}`;
         const pdfUploadUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${pdfPath}`;
         
         const pdfRes = await fetch(pdfUploadUrl, {
@@ -937,7 +1082,7 @@
         if (imgFileInput) {
           adminLog(`Krypterar och överför omslagsbild (${imgFileInput.name})...`);
           const imgBase64 = await fileToBase64(imgFileInput);
-          const imgPath = `archives/images/${imgFilename}`;
+          const imgPath = `${CONFIG.UPLOAD_IMG_DIR}${imgFilename}`;
           const imgUploadUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${imgPath}`;
           
           const imgRes = await fetch(imgUploadUrl, {
@@ -963,7 +1108,7 @@
 
         // 3. Update or create db files.json index inside the repo
         adminLog("Synkroniserar dokument-databasen...");
-        const dbPath = "archives/files.json";
+        const dbPath = CONFIG.UPLOAD_DB_PATH;
         const dbUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${dbPath}`;
         
         let dbSha = null;
