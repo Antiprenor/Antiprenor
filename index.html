@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Skjut dom i huvudet - Retroterminal</title>
+  <title>Skjut dom i huvudet - Material</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -198,7 +198,7 @@
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
             <div>
               <p id="headerSubText" class="text-sm tracking-widest opacity-80 uppercase font-mono">
-                [ LADDAR SYSTEMINTRUKTION... ]
+                [ LADDAR SYSTEM... ]
               </p>
               <h1 class="text-3xl sm:text-5xl font-bold tracking-wider uppercase text-glow flex items-center gap-2">
                 <span id="headerMainText">LADDAR TITEL...</span>
@@ -237,7 +237,7 @@
             <div>
               <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-bold tracking-wider text-glow flex items-center gap-2">
-                  <span>📂 DEKLASSIFICERADE ARKIV</span>
+                  <span>📂 DEKLASSIFICERAT ARKIV</span>
                 </h2>
                 <!-- Local Filter Search -->
                 <input type="text" id="archiveSearch" oninput="filterArchives()" placeholder="Sök i arkivet..." class="bg-black text-[var(--primary)] border border-[var(--primary)] px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--primary)] w-48 font-mono">
@@ -246,7 +246,7 @@
               <!-- Main Dynamic Files Area -->
               <div id="fileContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[50vh] lg:max-h-[60vh] overflow-y-auto pr-2">
                 <!-- Loaded via JS -->
-                <p class="animate-pulse">Läser in krypterade dokument...</p>
+                <p class="animate-pulse">Läser in läkta dokument...</p>
               </div>
             </div>
 
@@ -387,7 +387,7 @@
             </div>
 
             <div>
-              <label class="block text-sm font-bold mb-1">BESKRIVNING / MILITÄR INFORMATION *</label>
+              <label class="block text-sm font-bold mb-1">BESKRIVNING *</label>
               <textarea id="docDesc" required placeholder="Skriv en kort sammanfattning av filens innehåll eller dess roll i zombie-apokalypsen..." rows="3" class="w-full bg-black text-[var(--primary)] border border-[var(--primary)] p-2 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"></textarea>
             </div>
 
@@ -442,8 +442,8 @@
       UPLOAD_IMG_DIR: "archives/images/",
 
       // 3. TEXTER OCH RUBRIKER PÅ SKÄRMEN
-      HEADER_SUB: "[ KRIGSMATERIELVERKETS RETRO-NETWERK // APOCALYPSE v1.986 ]",
-      HEADER_MAIN: "SKJUT DOM I HUVUDET",
+      HEADER_SUB: "[ N0:A BACKUP-NÄTVERK //  ]",
+      HEADER_MAIN: "SKJUT DOM I HUVUDET - MATERIAL",
 
       // 4. INBYGGDA RESERVTIPS (Används om den externa tips.txt-filen inte kan hämtas)
       DEFAULT_TIPS: [
