@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="sv">
 <head>
@@ -6,17 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NO:A // SKJUT DOM I HUVUDET</title>
     
+    <!-- Retrotypsnitt -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
+    
     <style>
-        /* FÄRGTEMAN (ZOMBIE-APOKALYPS) - Monospace standardsystem */
+        /* FÄRGTEMAN (ZOMBIE-APOKALYPS) */
         :root {
             --primary: #33ff66;
             --primary-dim: #11aa44;
             --primary-dark: #002200;
             --bg: #050b06;
-            --glow: rgba(51, 255, 102, 0.25);
+            --glow: rgba(51, 255, 102, 0.35);
             --danger: #ff3333;
             --danger-dim: #990000;
-            --danger-glow: rgba(255, 51, 51, 0.25);
+            --danger-glow: rgba(255, 51, 51, 0.35);
         }
 
         .theme-amber {
@@ -24,7 +28,7 @@
             --primary-dim: #cc8800;
             --primary-dark: #221500;
             --bg: #080500;
-            --glow: rgba(255, 176, 0, 0.25);
+            --glow: rgba(255, 176, 0, 0.35);
         }
 
         .theme-cyan {
@@ -32,7 +36,7 @@
             --primary-dim: #0099aa;
             --primary-dark: #001f33;
             --bg: #00060a;
-            --glow: rgba(0, 229, 255, 0.25);
+            --glow: rgba(0, 229, 255, 0.35);
         }
 
         * { box-sizing: border-box; }
@@ -40,55 +44,69 @@
         body {
             background-color: var(--bg);
             color: var(--primary);
-            font-family: 'Courier New', Courier, monospace; /* Säkert typsnitt för alla mobiler */
-            font-size: 15px;
-            line-height: 1.4;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 17px;
+            line-height: 1.5;
             max-width: 800px;
             margin: 0 auto;
-            padding: 15px;
+            padding: 20px;
             position: relative;
             overflow-x: hidden;
             transition: background-color 0.3s, color 0.3s;
         }
 
-        /* CRT SCANLINES */
-        body::before {
+        /* CRT SKÄRMEFFEKT (Går att stänga av via kontrollpanelen) */
+        .scanlines::before {
             content: " ";
             display: block;
             position: fixed;
             top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%);
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
             z-index: 9999;
             background-size: 100% 4px;
             pointer-events: none;
-            opacity: 0.5;
+            opacity: 0.6;
         }
 
-        /* RUBRIKER */
+        .crt-vignette {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle, transparent 65%, rgba(0,0,0,0.85) 150%);
+            pointer-events: none;
+            z-index: 9998;
+        }
+
+        /* TEXTGLÖD */
+        h1, h2, h3, p, a, span, label, input, textarea, button {
+            text-shadow: 0 0 6px var(--glow);
+        }
+
+        /* HEADER */
         .game-title {
             color: var(--danger);
-            font-size: 1.4rem;
-            font-weight: bold;
-            letter-spacing: 2px;
+            font-family: 'VT323', monospace;
+            font-size: 1.8rem;
+            letter-spacing: 4px;
             text-transform: uppercase;
             margin: 0;
-            text-shadow: 0 0 5px var(--danger-glow);
+            text-shadow: 0 0 8px rgba(255, 51, 51, 0.6);
         }
 
         h1 {
-            font-size: 1.8rem;
+            font-family: 'VT323', monospace;
+            font-size: 3rem;
             margin: 5px 0 15px 0;
             text-transform: uppercase;
             border-bottom: 2px dashed var(--primary);
-            padding-bottom: 10px;
+            padding-bottom: 15px;
             letter-spacing: 1px;
         }
 
-        /* NAVIGATION */
+        /* NAVBAR TABBAR */
         .terminal-nav {
             display: flex;
-            gap: 8px;
-            margin-bottom: 15px;
+            gap: 10px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
         }
 
@@ -96,18 +114,19 @@
             background: rgba(0,0,0,0.6);
             color: var(--primary);
             border: 2px solid var(--primary-dim);
-            padding: 8px 12px;
+            padding: 8px 15px;
             font-family: inherit;
-            font-weight: bold;
             cursor: pointer;
+            font-weight: bold;
             text-transform: uppercase;
-            font-size: 13px;
+            transition: all 0.2s;
         }
 
         .nav-tab:hover, .nav-tab.active-tab {
             background: var(--primary);
             color: var(--bg);
             border-color: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
             text-shadow: none;
         }
 
@@ -120,6 +139,7 @@
             background: var(--danger);
             color: #fff;
             border-color: var(--danger);
+            box-shadow: 0 0 10px var(--danger);
             text-shadow: none;
         }
 
@@ -130,10 +150,10 @@
             align-items: center;
             flex-wrap: wrap;
             border: 1px solid var(--primary-dim);
-            padding: 8px 12px;
-            margin-bottom: 20px;
+            padding: 10px 15px;
+            margin-bottom: 25px;
             background-color: rgba(0, 0, 0, 0.4);
-            font-size: 12px;
+            font-size: 14px;
             gap: 10px;
         }
 
@@ -142,27 +162,27 @@
             color: var(--primary);
             border: 1px solid var(--primary);
             font-family: inherit;
-            padding: 2px 6px;
+            padding: 2px 8px;
             cursor: pointer;
             text-transform: uppercase;
-            font-size: 11px;
         }
 
         .theme-btn:hover, .theme-btn.active {
             background-color: var(--primary);
             color: var(--bg);
             text-shadow: none;
+            box-shadow: 0 0 8px var(--primary);
         }
 
         /* SÖKRUTA */
         .search-container {
             width: 100%;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             display: flex;
             align-items: center;
             border: 2px solid var(--primary);
             background-color: rgba(0, 0, 0, 0.6);
-            padding: 8px 12px;
+            padding: 10px 15px;
         }
 
         .search-input {
@@ -170,12 +190,12 @@
             border: none;
             color: var(--primary);
             font-family: inherit;
-            font-size: 15px;
+            font-size: 18px;
             width: 100%;
             outline: none;
         }
 
-        /* FILARKIV */
+        /* LISTOR OCH KORT */
         .archive-list {
             list-style: none;
             padding: 0;
@@ -184,7 +204,7 @@
 
         .archive-item {
             border: 2px solid var(--primary);
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             background-color: rgba(0, 0, 0, 0.3);
             display: flex;
             flex-direction: column;
@@ -199,9 +219,10 @@
             .archive-item { flex-direction: row; }
         }
 
+        /* BILDER */
         .image-container {
             width: 100%;
-            height: 150px;
+            height: 180px;
             background-color: var(--primary-dark);
             border-bottom: 2px solid var(--primary);
             display: flex;
@@ -218,8 +239,8 @@
 
         @media (min-width: 600px) {
             .image-container {
-                width: 150px;
-                height: 150px;
+                width: 180px;
+                height: 180px;
                 border-bottom: none;
                 border-right: 2px solid var(--primary);
             }
@@ -232,20 +253,23 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            image-rendering: pixelated;
         }
 
         .fallback-svg {
-            width: 50px;
-            height: 50px;
+            width: 70px;
+            height: 70px;
             fill: var(--primary);
+            filter: drop-shadow(0 0 5px var(--glow));
         }
 
         .locked-item .fallback-svg {
             fill: var(--danger);
+            filter: drop-shadow(0 0 5px var(--danger-glow));
         }
 
         .item-details {
-            padding: 15px;
+            padding: 20px;
             flex-grow: 1;
             display: flex;
             flex-direction: column;
@@ -253,20 +277,21 @@
         }
 
         .item-title {
-            font-size: 18px;
-            margin: 0 0 5px 0;
+            font-size: 24px;
+            margin: 0 0 8px 0;
             text-transform: uppercase;
-            font-weight: bold;
+            letter-spacing: 1px;
         }
 
         .locked-item .item-title {
             color: var(--danger);
+            text-shadow: 0 0 6px var(--danger-glow);
         }
 
         .item-description {
-            font-size: 14px;
+            font-size: 16px;
             color: var(--primary-dim);
-            margin: 0 0 15px 0;
+            margin: 0 0 20px 0;
         }
 
         .locked-item .item-description {
@@ -280,16 +305,16 @@
             justify-content: center;
             background-color: var(--primary);
             color: var(--bg);
-            padding: 8px 15px;
+            padding: 10px 20px;
             text-decoration: none;
             font-weight: bold;
             text-transform: uppercase;
             border: 2px solid var(--primary);
             align-self: flex-start;
-            box-shadow: 3px 3px 0px var(--primary-dark);
+            box-shadow: 4px 4px 0px var(--primary-dark);
             transition: all 0.1s;
             font-family: inherit;
-            font-size: 13px;
+            font-size: 16px;
             cursor: pointer;
         }
 
@@ -297,43 +322,54 @@
             background-color: var(--bg);
             color: var(--primary);
             box-shadow: 0px 0px 0px var(--primary-dark);
-            transform: translate(3px, 3px);
+            transform: translate(4px, 4px);
+            text-shadow: none;
         }
 
         .download-btn.btn-locked {
             background-color: var(--danger);
             border-color: var(--danger);
             color: #fff;
-            box-shadow: 3px 3px 0px #4d0000;
+            box-shadow: 4px 4px 0px #4d0000;
         }
 
         .download-btn.btn-locked:hover {
             background-color: var(--bg);
             color: var(--danger);
             box-shadow: 0px 0px 0px #4d0000;
+            text-shadow: 0 0 6px var(--danger-glow);
         }
 
-        /* ZOMBIE GENERATOR */
+        /* ZOMBIE GENERATOR KORT */
         .generator-container {
             border: 2px solid var(--danger);
             background-color: rgba(15, 0, 0, 0.4);
-            padding: 15px;
-            margin-bottom: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
         }
 
         .generator-header {
             color: var(--danger);
             border-bottom: 2px solid var(--danger);
-            padding-bottom: 8px;
-            margin-bottom: 15px;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
             text-transform: uppercase;
-            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .generator-header h2 {
+            margin: 0;
+            font-family: 'VT323', monospace;
+            font-size: 2.2rem;
+            letter-spacing: 2px;
         }
 
         .tactical-display {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 15px;
+            gap: 20px;
         }
 
         @media (min-width: 650px) {
@@ -345,15 +381,16 @@
         .display-screen {
             background-color: #000;
             border: 1px solid var(--danger);
-            padding: 15px;
-            min-height: 200px;
-            font-family: inherit;
+            padding: 20px;
+            min-height: 250px;
+            font-family: 'Share Tech Mono', monospace;
             color: var(--danger);
+            overflow-y: auto;
         }
 
         .bio-stats-box {
             border: 1px dashed var(--danger-dim);
-            padding: 12px;
+            padding: 15px;
             background: rgba(40, 0, 0, 0.2);
         }
 
@@ -361,8 +398,8 @@
             display: flex;
             justify-content: space-between;
             border-bottom: 1px dotted rgba(255, 51, 51, 0.2);
-            padding: 5px 0;
-            font-size: 13px;
+            padding: 6px 0;
+            font-size: 15px;
         }
 
         .stat-label {
@@ -378,14 +415,19 @@
             background-color: var(--danger);
             color: #fff;
             border: 2px solid var(--danger);
-            padding: 10px 20px;
+            padding: 12px 25px;
             font-family: inherit;
-            font-size: 15px;
+            font-size: 18px;
             font-weight: bold;
             text-transform: uppercase;
             cursor: pointer;
             width: 100%;
-            margin-top: 15px;
+            margin-top: 20px;
+        }
+
+        .gen-btn:hover {
+            background-color: transparent;
+            color: var(--danger);
         }
 
         /* MODAL */
@@ -396,17 +438,17 @@
             transform: translate(-50%, -50%);
             border: 2px solid var(--primary);
             background-color: var(--bg);
-            padding: 20px;
+            padding: 25px;
             z-index: 10001;
-            box-shadow: 0 0 25px rgba(0,0,0,0.95);
+            box-shadow: 0 0 30px rgba(0,0,0,0.95);
             width: 90%;
-            max-width: 450px;
+            max-width: 480px;
         }
 
         .custom-modal-header {
             font-weight: bold;
             text-transform: uppercase;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             border-bottom: 1px solid var(--primary-dim);
             padding-bottom: 5px;
         }
@@ -415,7 +457,7 @@
             background: var(--primary);
             color: var(--bg);
             border: none;
-            padding: 6px 15px;
+            padding: 8px 18px;
             font-family: inherit;
             font-weight: bold;
             margin-top: 15px;
@@ -426,15 +468,15 @@
         /* ADMINPANEL */
         .admin-toggle {
             text-align: center;
-            margin: 30px 0;
+            margin: 40px 0;
         }
 
         .admin-link {
             color: var(--primary-dim);
             text-decoration: none;
-            font-size: 13px;
+            font-size: 14px;
             border: 1px dashed var(--primary-dim);
-            padding: 5px 12px;
+            padding: 5px 15px;
             cursor: pointer;
             background: transparent;
         }
@@ -443,20 +485,20 @@
             display: none;
             border: 2px solid var(--danger);
             background-color: rgba(15, 0, 0, 0.9);
-            padding: 15px;
-            margin-top: 20px;
+            padding: 20px;
+            margin-top: 30px;
         }
 
         .form-group {
-            margin-bottom: 12px;
+            margin-bottom: 15px;
             display: flex;
             flex-direction: column;
         }
 
         .form-group label {
-            font-size: 13px;
+            font-size: 14px;
             text-transform: uppercase;
-            margin-bottom: 3px;
+            margin-bottom: 5px;
             color: var(--primary);
         }
 
@@ -465,24 +507,24 @@
             border: 1px solid var(--primary-dim);
             color: var(--primary);
             font-family: inherit;
-            font-size: 15px;
-            padding: 6px;
+            font-size: 16px;
+            padding: 8px;
             outline: none;
         }
 
         .no-results {
             text-align: center;
-            padding: 30px;
+            padding: 40px;
             border: 2px dashed var(--primary-dim);
-            font-size: 15px;
+            font-size: 18px;
             display: none;
         }
 
         footer {
-            margin-top: 40px;
-            padding-top: 15px;
+            margin-top: 60px;
+            padding-top: 20px;
             border-top: 1px solid var(--primary-dim);
-            font-size: 12px;
+            font-size: 13px;
             color: var(--primary-dim);
             display: flex;
             justify-content: space-between;
@@ -496,10 +538,26 @@
             50%, 100% { opacity: 0; }
         }
     </style>
+    
+    <!-- FELSÄKRINGS-SKRIPT LÄGGS I HEAD SÅ ATT DET ÄR TILLGÄNGLIGT OMEDELBART -->
+    <script>
+        function handleImageError(imageElement) {
+            const container = imageElement.parentElement;
+            if (!container) return;
+            imageElement.remove();
+            container.innerHTML = `
+                <svg class="fallback-svg" viewBox="0 0 24 24">
+                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                </svg>
+            `;
+        }
+    </script>
 </head>
-<body class="theme-green">
+<body class="theme-green scanlines">
 
-    <!-- MODAL FÖR FELMEDDELANDEN -->
+    <div class="crt-vignette"></div>
+
+    <!-- MEDDELANDE MODAL -->
     <div id="custom-modal" class="custom-modal">
         <div id="modal-title" class="custom-modal-header">SYSTEMMEDDELANDE</div>
         <div id="modal-body">Innehåll</div>
@@ -508,38 +566,39 @@
 
     <!-- SPELLÖSENORDSKONTROLL MODAL -->
     <div id="password-modal" class="custom-modal" style="border-color: var(--danger); background-color: rgba(15, 0, 0, 0.95);">
-        <div class="custom-modal-header" style="color: var(--danger); border-bottom-color: var(--danger); font-size: 1.1rem;">
+        <div class="custom-modal-header" style="color: var(--danger); border-bottom-color: var(--danger); font-size: 1.2rem;">
             SÄKERHETSBEGRÄNSAD ÅTKOMST
         </div>
-        <p id="password-hint-text" style="font-size: 14px; margin-bottom: 15px; color: #ff8888; border-left: 2px solid var(--danger); padding-left: 10px;"></p>
+        <p id="password-hint-text" style="font-size: 15px; margin-bottom: 15px; color: #ff8888; border-left: 2px solid var(--danger); padding-left: 10px;"></p>
         <div class="form-group">
             <label style="color: var(--danger);">MANUELL SYSTEMKOD (DEKRYPTERING):</label>
             <input type="password" id="password-input" class="form-control" style="border-color: var(--danger); color: var(--danger);" onkeydown="if(event.key === 'Enter') submitPassword()">
         </div>
-        <div style="display: flex; gap: 10px; margin-top: 15px;">
-            <button class="admin-btn" style="background: var(--danger); color: white; border: 2px solid var(--danger); padding: 5px 12px; cursor: pointer; font-family: inherit; font-weight: bold;" onclick="submitPassword()">[ OVERRIDE ]</button>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button class="admin-btn" style="background: var(--danger); color: white; border: 2px solid var(--danger); padding: 5px 15px; cursor: pointer; font-family: inherit; font-weight: bold;" onclick="submitPassword()">[ OVERRIDE ]</button>
             <button class="custom-modal-btn" style="margin-top:0; background: transparent; color: var(--primary); border: 1px solid var(--primary);" onclick="closePasswordModal()">[ AVBRYT ]</button>
         </div>
     </div>
 
-    <!-- INNEHÅLL -->
-    <header>
+    <!-- HUVUDINNEHÅLL -->
+    <header style="margin-top: 10px;">
         <p class="game-title">SKJUT DOM I HUVUDET</p>
         <h1>NO:A // DEKLASSIFICERADE_ARKIV</h1>
         
         <!-- Navigation -->
         <div class="terminal-nav">
             <button class="nav-tab active-tab" id="tab-archive" onclick="switchView('archive')">📂 FRIGIVNA FILER</button>
-            <button class="nav-tab danger-tab" id="tab-generator" onclick="switchView('generator')">☣️ SLUMP-O-MATIC</button>
+            <button class="nav-tab danger-tab" id="tab-generator" onclick="switchView('generator')">☣️ SLUMP-O-MATIC (SL-KONSOL)</button>
         </div>
 
         <div class="control-panel">
             <div id="terminal-status">STATUS: ANSLUTEN TILL KRISHANTERING_</div>
-            <div style="display: flex; gap: 5px; align-items: center;">
-                <span>FÄRG:</span>
-                <button class="theme-btn active" onclick="changeTheme('green', this)">GRÖN</button>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <span>TEMA:</span>
+                <button class="theme-btn active" onclick="changeTheme('green', this)">FOSFOR</button>
                 <button class="theme-btn" onclick="changeTheme('amber', this)">AMBER</button>
                 <button class="theme-btn" onclick="changeTheme('cyan', this)">CYAN</button>
+                <button class="theme-btn" id="toggle-scanlines-btn" onclick="toggleScanlines()" style="border-color: #ff3333; color: #ff3333;">SCANLINES: PÅ</button>
             </div>
         </div>
     </header>
@@ -548,57 +607,59 @@
         
         <!-- VY 1: FILARKIVET -->
         <div id="view-archive">
-            <p>ALL INFORMATION NEDAN ÄR FRIGIVEN FÖR CIVILBEFOLKNINGEN.</p>
+            <p>SÖKER I NATIONELLA OPERATIVAVDELNINGEN FÖR APOKALYPSENS DATABAS. ALL INFORMATION NEDAN ÄR FRIGIVEN FÖR CIVILBEFOLKNINGEN.</p>
 
             <div class="search-container">
-                <span style="margin-right: 8px; font-weight: bold;">SÖK_></span>
+                <span style="margin-right: 10px; font-weight: bold;">SÖK_DATABAS_></span>
                 <input type="text" id="search-bar" class="search-input" placeholder="Skriv sökord..." onkeyup="filterFiles()">
             </div>
 
             <div id="no-results-msg" class="no-results">
-                [ KRITISKT FEL: INGA DOKUMENT MATCHADE ]
+                [ KRITISKT FEL: INGA DOKUMENT MATCHAR DIN SÖKNING ]
             </div>
 
+            <!-- Filer direkt i HTML -->
             <ul class="archive-list" id="file-list">
                 
                 <!-- Spelledarguide (Låst) -->
-                <li class="archive-item locked-item" data-title="SPELLEDARGUIDE_HEMLIG.PDF" data-desc="Kritiska SL-tabeller och bakomliggande sanningar. ENDAST FÖR SPELLEDARKONSULTER.">
+                <li class="archive-item locked-item" data-title="SPELLEDARGUIDE_HEMLIG.PDF" data-desc="Kritiska SL-tabeller, infektionsframsteg och bakomliggande sanningar om katastrofen. ENDAST FÖR SPELLEDARKONSULTER.">
                     <div class="image-container">
                         <img src="saknas.jpg" alt="SL Guide" class="item-image" onerror="handleImageError(this)">
                     </div>
                     <div class="item-details">
                         <div>
-                            <h3 class="item-title">> SPELLEDARGUIDE_HEMLIG.PDF (LÅST)</h3>
-                            <p class="item-description">Kritiska SL-tabeller, infektionsframsteg och sanningar. ENDAST FÖR SPELLEDARKONSULTER.</p>
+                            <h3 class="item-title">> SPELLEDARGUIDE_HEMLIG.PDF (KRYPTERAD)</h3>
+                            <p class="item-description">Kritiska SL-tabeller, infektionsframsteg och bakomliggande sanningar om katastrofen. ENDAST FÖR SPELLEDARKONSULTER.</p>
                         </div>
-                        <!-- Lösenord: KOD88 (Vänt baklänges till: 88DOK) -->
-                        <button class="download-btn btn-locked" onclick="promptPassword('spelledarguide.pdf', '88DOK', '.NEKOOOBRALEPS I 88 NADIS ÅP TEDRO ATSRÖF TED EGNA')">[ DEKRYPTERA ]</button>
+                        <!-- Lösenord: KOD88 (Vänt baklänges: 88DOK) -->
+                        <!-- Hint: ANGE DET FÖRSTA ORDET PÅ SIDAN 88 I SPELARBOOOKEN (Vänt baklänges) -->
+                        <button class="download-btn btn-locked" onclick="promptPassword('spelledarguide.pdf', '88DOK', '.NEKOOOBRALEPS I 88 NADIS ÅP TEDRO ATSRÖF TED EGNA')">[ LÅST MATERIAL - DEKRYPTERA ]</button>
                     </div>
                 </li>
 
                 <!-- Karantänsregler -->
-                <li class="archive-item" data-title="KARANTÄNSREGLER_STHLM.PDF" data-desc="Officiella direktiv från NO:A angående isolering av infekterade zoner i Stockholmsområdet.">
+                <li class="archive-item" data-title="KARANTÄNSREGLER_STHLM.PDF" data-desc="Officiella direktiv från NO:A angående isolering av infekterade zoner i Stockholmsområdet. Obligatorisk läsning för alla överlevare.">
                     <div class="image-container">
                         <img src="saknas.jpg" alt="Karantän" class="item-image" onerror="handleImageError(this)">
                     </div>
                     <div class="item-details">
                         <div>
                             <h3 class="item-title">> KARANTÄNSREGLER_STHLM.PDF</h3>
-                            <p class="item-description">Officiella direktiv från NO:A angående isolering av infekterade zoner i Stockholmsområdet.</p>
+                            <p class="item-description">Officiella direktiv från NO:A angående isolering av infekterade zoner i Stockholmsområdet. Obligatorisk läsning för alla överlevare.</p>
                         </div>
                         <a href="karantan_sthlm.pdf" class="download-btn" download>[ ladda ner pdf ]</a>
                     </div>
                 </li>
 
                 <!-- Fälthandbok -->
-                <li class="archive-item" data-title="FÄLTHANDBOK_NÄRSTRID.PDF" data-desc="Taktisk instruktionsmanual för hur man effektivt oskadliggör hot med närstridsvapen.">
+                <li class="archive-item" data-title="FÄLTHANDBOK_NÄRSTRID.PDF" data-desc="Taktisk instruktionsmanual för hur man effektivt oskadliggör hot med blankvapen. Fokus på träffytor i kranium.">
                     <div class="image-container">
                         <img src="saknas.jpg" alt="Fälthandbok" class="item-image" onerror="handleImageError(this)">
                     </div>
                     <div class="item-details">
                         <div>
                             <h3 class="item-title">> FÄLTHANDBOK_NÄRSTRID.PDF</h3>
-                            <p class="item-description">Taktisk instruktionsmanual för hur man effektivt oskadliggör hot med närstridsvapen.</p>
+                            <p class="item-description">Taktisk instruktionsmanual för hur man effektivt oskadliggör hot med blankvapen. Fokus på träffytor i kranium.</p>
                         </div>
                         <a href="falthandbok.pdf" class="download-btn" download>[ ladda ner pdf ]</a>
                     </div>
@@ -609,4 +670,607 @@
 
         <!-- VY 2: ZOMBIE SLUMPGENERATOR -->
         <div id="view-generator" style="display: none;">
-            <p style="color: var(--danger);">INTELLIGENT INTEGRATIONSSYSTEM FÖR HOTANALYS. GENERERA OCH ANALYSERA INFESTAT
+            <p style="color: var(--danger);">INTELLIGENT INTEGRATIONSSYSTEM FÖR HOTANALYS. GENERERA OCH ANALYSERA INFESTATIONER I REALTID UTIFRÅN RAPPORTDATA.</p>
+            
+            <div class="generator-container">
+                <div class="generator-header">
+                    <h2>TACTICAL THREAT SCANNER v1.09</h2>
+                    <span style="font-size: 14px; border: 1px solid var(--danger); padding: 2px 8px;">TARGET LOCK</span>
+                </div>
+
+                <div class="tactical-display">
+                    <!-- Terminalfönster -->
+                    <div class="display-screen" id="tactical-screen">
+                        <span style="color: #660000;">STARTAR SKANNER... KLICKA PÅ KNAPPEN NEDAN FÖR ATT EXEKVERA.</span>
+                    </div>
+
+                    <!-- Attributfönster -->
+                    <div class="bio-stats-box">
+                        <h3 style="color: var(--danger); margin-top: 0; text-transform: uppercase; font-size: 18px; border-bottom: 1px dashed var(--danger-dim); padding-bottom: 5px;">🧬 BIO-VÄRDEN</h3>
+                        <div id="bio-stats-list">
+                            <div style="text-align: center; padding-top: 40px; color: var(--danger-dim);">INGA DATA</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="gen-btn" onclick="triggerZombieGeneration()">[ GENERERA SLUMPMÄSSIGT RETRO-HOT ]</button>
+            </div>
+        </div>
+
+        <!-- ADMIN GENVÄG -->
+        <div class="admin-toggle">
+            <button class="admin-link" onclick="toggleAdminPanel()">[ KRYPTERAD INLOGGNING (ADMIN-PANEL) ]</button>
+        </div>
+
+        <!-- ADMIN PANEL (DOLD) -->
+        <div id="admin-panel" class="admin-panel">
+            <h2 style="color: var(--danger); margin-top:0; border-bottom: 1px solid var(--danger); padding-bottom:10px;">KONSOL: NO:A PORTAL</h2>
+            <p>Ladda upp nya filer och bilder direkt till din GitHub-sida.</p>
+            
+            <div style="border: 1px dashed var(--danger); padding: 12px; margin-bottom: 20px; font-size: 13px;">
+                <strong>Instruktioner:</strong> Skapa en nyckel på GitHub <a href="https://github.com/settings/tokens/new" target="_blank" style="color:#fff;">här</a> (kryssa i 'repo') och fyll i nedan.
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px;">
+                <div class="form-group">
+                    <label>Användarnamn</label>
+                    <input type="text" id="git-username" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Repositorynamn</label>
+                    <input type="text" id="git-repo" class="form-control">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>GitHub Token (PAT)</label>
+                <input type="password" id="git-token" class="form-control" placeholder="ghp_...">
+            </div>
+
+            <hr style="border-color: var(--danger); margin: 20px 0;">
+
+            <h3>NYTT DOKUMENT</h3>
+            <div class="form-group">
+                <label>Dokumenttitel</label>
+                <input type="text" id="new-title" class="form-control" placeholder="T.ex. APOTEKSRECEPT_ÖVERLEVNAD.PDF">
+            </div>
+            <div class="form-group">
+                <label>Beskrivning</label>
+                <textarea id="new-desc" class="form-control" rows="2" placeholder="Beskriv filen..."></textarea>
+            </div>
+            
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px;">
+                <div class="form-group">
+                    <label>PDF-Fil</label>
+                    <input type="file" id="new-pdf-file" class="form-control" accept=".pdf" style="font-size:12px;">
+                </div>
+                <div class="form-group">
+                    <label>Bild (Frivilligt)</label>
+                    <input type="file" id="new-img-file" class="form-control" accept="image/*" style="font-size:12px;">
+                </div>
+            </div>
+
+            <div class="form-group" style="flex-direction: row; align-items: center; gap: 10px;">
+                <input type="checkbox" id="enable-password" onchange="togglePasswordFields()" style="width: 20px; height: 20px;">
+                <label for="enable-password" style="margin-bottom:0; color: var(--danger);">Lösenordsskydda denna fil</label>
+            </div>
+            
+            <div id="password-fields" style="display: none; border: 1px dashed var(--danger); padding: 15px; margin-top: 10px;">
+                <div class="form-group">
+                    <label>Systemkod/Lösenord</label>
+                    <input type="text" id="new-password" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Ledtråd till spelarna</label>
+                    <input type="text" id="new-hint" class="form-control" placeholder="T.ex. Första ordet på s. 88">
+                </div>
+            </div>
+
+            <button class="gen-btn" onclick="startPublishProcess()">[ STARTA UPPLADDNING ]</button>
+            <div id="upload-log" class="terminal-log" style="display:none;"></div>
+        </div>
+    </main>
+
+    <footer>
+        <div>SYSTEM://NO:A_TERMINAL</div>
+        <div>ANSLUTNING: SÄKER <span class="cursor-blink">_</span></div>
+    </footer>
+
+    <!-- SKRIPTEN LIGGER HELT LÄNGST NER -->
+    <script>
+        // SLUMPDATABAS FÖR ZOMBIE-GENERATORN
+        const ZOMBIE_DATABAS = {
+            grundtyper: [
+                { namn: "Släpande Vandrare", faroniva: "LÅG", halsa: "3T6 + 5", hastighet: "Långsam (1 handling)", attack: "Bett (Skada 1T6)", beskrivning: "Släpar fötterna efter sig. Reagerar på ljud och blod." },
+                { namn: "Hundlik Löpare", faroniva: "MEDIUM", halsa: "2T6 + 3", hastighet: "Extremt Snabb (3 handlingar)", attack: "Slitande bett (Skada 1T8)", beskrivning: "Rör sig på alla fyra med onaturlig vighet." },
+                { namn: "Gasfylld Sprängare", faroniva: "HÖG", halsa: "3T6", hastighet: "Normal (2 handlingar)", attack: "Syramoln vid död (Area 2T6)", beskrivning: "Svullen kropp full av giftgaser. Exploderar vid kraftig skada." },
+                { namn: "Guttural Skrikare", faroniva: "MEDIUM", halsa: "2T6 + 6", hastighet: "Snabb (2 handlingar)", attack: "Paralyserande skrik", beskrivning: "Stämbanden muterade. Skriket lockar till sig fler zombier." },
+                { namn: "Pansarkravlare", faroniva: "KRITISK", halsa: "5T6 + 10", hastighet: "Trög (1 handling)", attack: "Kross (Skada 2T6)", beskrivning: "Före detta polis eller militär i kravallutrustning. Extremt seg." }
+            ],
+            sardrag: [
+                "Saknar helt underkäke (klöser istället).",
+                "Kroppen dryper av kletig, luktande tjära.",
+                "Ögonen lyser i mörkret.",
+                "Har taggtråd hårt snurrad runt armarna."
+            ],
+            beteende: [
+                "Sitter fastklämd i ett rör men kämpar frenetiskt.",
+                "Sliter i en låst trädörr.",
+                "Står helt stilla vänd mot väggen och muttrar.",
+                "Tuggar mekaniskt på en bit gummidäck."
+            ],
+            fyndplats: [
+                "I källarvalvet under sjukhuset.",
+                "Baksätet på en övergiven ambulans.",
+                "Fastklämd i den trasiga rulltrappan."
+            ]
+        };
+
+        // Standard-register att falla tillbaka på
+        const defaultFiles = [
+            {
+                title: "SPELLEDARGUIDE_HEMLIG.PDF",
+                desc: "Kritiska SL-tabeller, infektionsframsteg och bakomliggande sanningar om katastrofen. ENDAST FÖR SPELLEDARKONSULTER.",
+                pdf: "spelledarguide.pdf",
+                img: "",
+                password: "KOD88",
+                passwordHint: "ANGE DET FÖRSTA ORDET PÅ SIDAN 88 I SPELARBOOOKEN."
+            },
+            {
+                title: "KARANTÄNSREGLER_STHLM.PDF",
+                desc: "Officiella direktiv från NO:A angående isolering av infekterade zoner i Stockholmsområdet. Obligatorisk läsning för alla överlevare.",
+                pdf: "karantan_sthlm.pdf",
+                img: ""
+            },
+            {
+                title: "FÄLTHANDBOK_NÄRSTRID.PDF",
+                desc: "Taktisk instruktionsmanual för hur man effektivt oskadliggör hot med blankvapen. Fokus på träffytor i kranium.",
+                pdf: "falthandbok.pdf",
+                img: ""
+            }
+        ];
+
+        let loadedFiles = [...defaultFiles];
+        let activePdfUrl = '';
+        let activeDecodedPassword = '';
+
+        // SÄKRA KODVÄNDARE (Förhindrar krascher med svenska å, ä, ö)
+        function reverseString(str) {
+            if (!str) return "";
+            try {
+                return Array.from(str).reverse().join('');
+            } catch(e) {
+                return str.split('').reverse().join('');
+            }
+        }
+
+        // SÄKRA STORAGE-METODER
+        function safeGetItem(key) {
+            try { return localStorage.getItem(key); } catch (e) { return null; }
+        }
+        function safeSetItem(key, value) {
+            try { localStorage.setItem(key, value); } catch (e) {}
+        }
+
+        // TÄND / SLÄCK SCANLINES
+        function toggleScanlines() {
+            const body = document.body;
+            const btn = document.getElementById("toggle-scanlines-btn");
+            if (body.classList.contains("scanlines")) {
+                body.classList.remove("scanlines");
+                if (btn) btn.textContent = "SCANLINES: AV";
+            } else {
+                body.classList.add("scanlines");
+                if (btn) btn.textContent = "SCANLINES: PÅ";
+            }
+        }
+
+        // STARTA DIREKT PÅ LADDNING
+        loadCredentials();
+        fetchFiles();
+
+        // NAVIGERING MELLAN FLIKAR
+        function switchView(viewName) {
+            const archiveView = document.getElementById("view-archive");
+            const generatorView = document.getElementById("view-generator");
+            const tabArchive = document.getElementById("tab-archive");
+            const tabGenerator = document.getElementById("tab-generator");
+            const statusText = document.getElementById("terminal-status");
+
+            if (viewName === 'archive') {
+                if (archiveView) archiveView.style.display = "block";
+                if (generatorView) generatorView.style.display = "none";
+                if (tabArchive) tabArchive.classList.add("active-tab");
+                if (tabGenerator) tabGenerator.classList.remove("active-tab");
+                if (statusText) statusText.textContent = "STATUS: ANSLUTEN TILL KRISHANTERING_";
+            } else {
+                if (archiveView) archiveView.style.display = "none";
+                if (generatorView) generatorView.style.display = "block";
+                if (tabArchive) tabArchive.classList.remove("active-tab");
+                if (tabGenerator) tabGenerator.classList.add("active-tab");
+                if (statusText) statusText.textContent = "STATUS: THREAT_SCANNER_CONNECTED_";
+                
+                // Generera en zombie automatiskt vid fliköppning
+                const tactical = document.getElementById("tactical-screen");
+                if (tactical && tactical.textContent.includes("STARTAR SKANNER")) {
+                    triggerZombieGeneration();
+                }
+            }
+        }
+
+        // TÄRNINGSLOGIK
+        function rollDiceString(diceStr) {
+            try {
+                const cleanStr = diceStr.replace(/\s+/g, '').toUpperCase();
+                const parts = cleanStr.split('+');
+                const dicePart = parts[0]; 
+                const constantPart = parts[1] ? parseInt(parts[1], 10) : 0;
+                const diceSubparts = dicePart.split('T');
+                const count = parseInt(diceSubparts[0], 10);
+                const sides = parseInt(diceSubparts[1], 10);
+
+                let sum = 0;
+                for (let i = 0; i < count; i++) {
+                    sum += Math.floor(Math.random() * sides) + 1;
+                }
+                return sum + constantPart;
+            } catch (e) {
+                return 10; 
+            }
+        }
+
+        // GENERERA EN ZOMBIE
+        function triggerZombieGeneration() {
+            const screen = document.getElementById("tactical-screen");
+            const bioScreenList = document.getElementById("bio-stats-list");
+            if (!screen || !bioScreenList) return;
+
+            const typ = ZOMBIE_DATABAS.grundtyper[Math.floor(Math.random() * ZOMBIE_DATABAS.grundtyper.length)];
+            const särdrag = ZOMBIE_DATABAS.sardrag[Math.floor(Math.random() * ZOMBIE_DATABAS.sardrag.length)];
+            const beteende = ZOMBIE_DATABAS.beteende[Math.floor(Math.random() * ZOMBIE_DATABAS.beteende.length)];
+            const fyndplats = ZOMBIE_DATABAS.fyndplats[Math.floor(Math.random() * ZOMBIE_DATABAS.fyndplats.length)];
+
+            const hälsa = rollDiceString(typ.halsa);
+
+            screen.innerHTML = `
+                <div style="color: #ff3333; font-weight: bold; font-size: 1.1rem; border-bottom: 1px dashed #ff3333; padding-bottom: 5px; margin-bottom: 10px;">
+                ⚡ RETRO-HOT: ${typ.namn.toUpperCase()}
+                </div>
+                <p><strong>REKVISIT:</strong> ${typ.beskrivning}</p>
+                <p><strong>MUTATION:</strong> <span style="color: #fff;">${särdrag}</span></p>
+                <p><strong>Beteende:</strong> <span style="color: #ff8888;">${beteende}</span></p>
+                <p><strong>Hittad:</strong> <em>${fyndplats}</em></p>
+            `;
+
+            bioScreenList.innerHTML = `
+                <div class="stat-line"><span class="stat-label">HOTGRAD:</span><span class="stat-value" style="color:#ff3333;">${typ.faroniva}</span></div>
+                <div class="stat-line"><span class="stat-label">STRIDS-HP:</span><span class="stat-value">${hälsa} (${typ.halsa})</span></div>
+                <div class="stat-line"><span class="stat-label">SNABBHET:</span><span class="stat-value">${typ.hastighet}</span></div>
+                <div class="stat-line"><span class="stat-label">ATTACK:</span><span class="stat-value" style="color: #ff8888;">${typ.attack}</span></div>
+            `;
+        }
+
+        // MODALER
+        function showModal(title, text) {
+            const mTitle = document.getElementById("modal-title");
+            const mBody = document.getElementById("modal-body");
+            const modal = document.getElementById("custom-modal");
+            if (mTitle) mTitle.textContent = title;
+            if (mBody) mBody.textContent = text;
+            if (modal) modal.style.display = "block";
+        }
+
+        function closeModal() {
+            const modal = document.getElementById("custom-modal");
+            if (modal) modal.style.display = "none";
+        }
+
+        // LÖSENORDSSKYDD (Körs säkert via svensk textreversering)
+        function promptPassword(pdfUrl, reversedPassword, reversedHint) {
+            activePdfUrl = pdfUrl;
+            
+            // Vänd texten rätt igen säkert utan att krascha på ÅÄÖ
+            activeDecodedPassword = reverseString(reversedPassword);
+            const hint = reverseString(reversedHint);
+            
+            const hintText = document.getElementById("password-hint-text");
+            if (hintText) {
+                hintText.textContent = hint || "DOKUMENTET ÄR KRYPTERAT.";
+            }
+            
+            const pModal = document.getElementById("password-modal");
+            if (pModal) pModal.style.display = "block";
+        }
+
+        function closePasswordModal() {
+            const pModal = document.getElementById("password-modal");
+            if (pModal) pModal.style.display = "none";
+        }
+
+        function submitPassword() {
+            const pInput = document.getElementById("password-input");
+            const userInput = pInput ? pInput.value.trim() : "";
+            
+            if (userInput.toUpperCase() === activeDecodedPassword.toUpperCase()) {
+                closePasswordModal();
+                showModal("AVKODAD", "Krypteringen bruten. Startar nedladdning...");
+                
+                const link = document.createElement('a');
+                link.href = activePdfUrl;
+                link.download = '';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                showModal("ÅTKOMST NEKAD", "Felaktig systemkod.");
+            }
+        }
+
+        // TEMAVÄXLARE
+        function changeTheme(themeName, button) {
+            document.body.className = '';
+            
+            // Lägg till vald färgklass
+            if (themeName === 'amber') {
+                document.body.classList.add('theme-amber');
+            } else if (themeName === 'cyan') {
+                document.body.classList.add('theme-cyan');
+            }
+            
+            // Kom ihåg att bevara scanlines om den är aktiv
+            const scanBtn = document.getElementById("toggle-scanlines-btn");
+            if (scanBtn && scanBtn.textContent.includes("PÅ")) {
+                document.body.classList.add("scanlines");
+            }
+
+            const buttons = document.querySelectorAll('.theme-btn');
+            buttons.forEach(btn => {
+                if (btn.id !== "toggle-scanlines-btn") {
+                    btn.classList.remove('active');
+                }
+            });
+            if (button) button.classList.add('active');
+        }
+
+        // HÄMTA DATABASEN (FILES.JSON)
+        async function fetchFiles() {
+            try {
+                const response = await fetch('files.json');
+                if (response.ok) {
+                    loadedFiles = await response.json();
+                    renderFiles(); // Ersätter HTML-listan om filen finns på din server
+                }
+            } catch (e) {
+                console.log("Använder inbyggda failsafe-filer.");
+            }
+        }
+
+        // RITA FILER (Körs bara om files.json hämtades live)
+        function renderFiles() {
+            const listContainer = document.getElementById("file-list");
+            if (!listContainer) return;
+            listContainer.innerHTML = '';
+
+            loadedFiles.forEach(file => {
+                const listItem = document.createElement('li');
+                const isLocked = !!file.password;
+                listItem.className = isLocked ? 'archive-item locked-item' : 'archive-item';
+                listItem.setAttribute('data-title', file.title);
+                listItem.setAttribute('data-desc', file.desc);
+
+                const imgHtml = file.img 
+                    ? `<img src="${file.img}" alt="${file.title}" class="item-image" onerror="handleImageError(this)">`
+                    : `<img src="saknas.jpg" alt="Ingen bild" class="item-image" onerror="handleImageError(this)">`;
+
+                let buttonHtml = '';
+                if (isLocked) {
+                    // Vi sparar lösenorden baklänges för att spara ÅÄÖ-kompatibilitet
+                    const revPass = reverseString(file.password);
+                    const revHint = reverseString(file.passwordHint || '');
+                    buttonHtml = `<button class="download-btn btn-locked" onclick="promptPassword('${file.pdf}', '${revPass}', '${revHint}')">[ LÅST MATERIAL - DEKRYPTERA ]</button>`;
+                } else {
+                    buttonHtml = `<a href="${file.pdf}" class="download-btn" download>[ ladda ner pdf ]</a>`;
+                }
+
+                listItem.innerHTML = `
+                    <div class="image-container">${imgHtml}</div>
+                    <div class="item-details">
+                        <div>
+                            <h3 class="item-title">> ${file.title} ${isLocked ? ' (KRYPTERAD)' : ''}</h3>
+                            <p class="item-description">${file.desc}</p>
+                        </div>
+                        ${buttonHtml}
+                    </div>
+                `;
+                listContainer.appendChild(listItem);
+            });
+        }
+
+        // SÖK
+        function filterFiles() {
+            const searchBar = document.getElementById("search-bar");
+            const query = searchBar ? searchBar.value.toLowerCase() : "";
+            const items = document.querySelectorAll(".archive-item");
+            const noResults = document.getElementById("no-results-msg");
+            let hasMatch = false;
+
+            items.forEach(item => {
+                const title = item.getAttribute("data-title").toLowerCase();
+                const desc = item.getAttribute("data-desc").toLowerCase();
+
+                if (title.includes(query) || desc.includes(query)) {
+                    item.style.display = "flex";
+                    hasMatch = true;
+                } else {
+                    item.style.display = "none";
+                }
+            });
+
+            if (noResults) noResults.style.display = hasMatch ? "none" : "block";
+        }
+
+        // ADMIN
+        function toggleAdminPanel() {
+            const panel = document.getElementById("admin-panel");
+            if (panel) {
+                panel.style.display = panel.style.display === "block" ? "none" : "block";
+                if (panel.style.display === "block") {
+                    panel.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        }
+
+        function togglePasswordFields() {
+            const checkbox = document.getElementById("enable-password");
+            const fields = document.getElementById("password-fields");
+            if (fields && checkbox) {
+                fields.style.display = checkbox.checked ? "block" : "none";
+            }
+        }
+
+        function loadCredentials() {
+            const userInp = document.getElementById('git-username');
+            const repoInp = document.getElementById('git-repo');
+            const tokenInp = document.getElementById('git-token');
+            if (userInp && safeGetItem('git_username')) userInp.value = safeGetItem('git_username');
+            if (repoInp && safeGetItem('git_repo')) repoInp.value = safeGetItem('git_repo');
+            if (tokenInp && safeGetItem('git_token')) tokenInp.value = safeGetItem('git_token');
+        }
+
+        function saveCredentials(username, repo, token) {
+            safeSetItem('git_username', username);
+            safeSetItem('git_repo', repo);
+            safeSetItem('git_token', token);
+        }
+
+        function logUpload(text) {
+            const logBox = document.getElementById("upload-log");
+            if (logBox) {
+                logBox.style.display = "block";
+                logBox.textContent += `> ${text}\n`;
+                logBox.scrollTop = logBox.scrollHeight;
+            }
+        }
+
+        // UPPLADDNING VIA API
+        async function startPublishProcess() {
+            const logBox = document.getElementById("upload-log");
+            if (logBox) logBox.textContent = ''; 
+
+            const username = document.getElementById("git-username").value.trim();
+            const repo = document.getElementById("git-repo").value.trim();
+            const token = document.getElementById("git-token").value.trim();
+            const title = document.getElementById("new-title").value.trim().toUpperCase();
+            const desc = document.getElementById("new-desc").value.trim();
+            const pdfFile = document.getElementById("new-pdf-file").files[0];
+            const imgFile = document.getElementById("new-img-file").files[0];
+
+            const hasPassword = document.getElementById("enable-password").checked;
+            const password = hasPassword ? document.getElementById("new-password").value.trim() : "";
+            const passwordHint = hasPassword ? document.getElementById("new-hint").value.trim() : "";
+
+            if (!username || !repo || !token) {
+                showModal("FEL", "Fyll i GitHub-inställningarna.");
+                return;
+            }
+            if (!title || !desc || !pdfFile) {
+                showModal("FEL", "Titel, beskrivning och PDF-fil krävs.");
+                return;
+            }
+
+            saveCredentials(username, repo, token);
+            logUpload("Kopplar upp mot GitHub...");
+            
+            try {
+                const pdfName = `pdf_${Date.now()}_${pdfFile.name.replace(/[^a-zA-Z0-9\.]/g, "_")}`;
+                let imgName = "";
+
+                logUpload("Laddar upp PDF...");
+                const pdfBase64 = await toBase64(pdfFile);
+                await uploadFileToGit(username, repo, token, pdfName, pdfBase64, `Upload PDF: ${pdfName}`);
+
+                if (imgFile) {
+                    imgName = `img_${Date.now()}_${imgFile.name.replace(/[^a-zA-Z0-9\.]/g, "_")}`;
+                    logUpload("Laddar upp bild...");
+                    const imgBase64 = await toBase64(imgFile);
+                    await uploadFileToGit(username, repo, token, imgName, imgBase64, `Upload Image: ${imgName}`);
+                }
+
+                logUpload("Uppdaterar register...");
+                const newFileData = { title, desc, pdf: pdfName, img: imgName };
+                if (hasPassword) {
+                    newFileData.password = password;
+                    newFileData.passwordHint = passwordHint;
+                }
+
+                await updateRegistryJson(username, repo, token, newFileData);
+
+                logUpload("KLART! Sidan uppdateras om ca 45 sekunder.");
+                showModal("KLART", "Filen laddades upp framgångsrikt!");
+
+            } catch (error) {
+                logUpload(`FEL: ${error.message}`);
+                showModal("FEL", error.message);
+            }
+        }
+
+        function toBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        async function uploadFileToGit(username, repo, token, path, base64Content, commitMsg) {
+            const url = `https://api.github.com/repos/${username}/${repo}/contents/${path}`;
+            const response = await fetch(url, {
+                method: 'PUT',
+                headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: commitMsg, content: base64Content })
+            });
+            if (!response.ok) throw new Error("Kunde inte ladda upp fil.");
+        }
+
+        async function updateRegistryJson(username, repo, token, newFileObj) {
+            const path = 'files.json';
+            const url = `https://api.github.com/repos/${username}/${repo}/contents/${path}`;
+            let currentSha = null;
+            let fileList = [...defaultFiles]; 
+
+            try {
+                const getResponse = await fetch(url, { headers: { 'Authorization': `token ${token}` } });
+                if (getResponse.ok) {
+                    const data = await getResponse.json();
+                    currentSha = data.sha;
+                    const decodedText = atob(data.content.replace(/\s/g, ''));
+                    const utf8Decoder = new TextDecoder('utf-8');
+                    const arrayBuffer = new Uint8Array(decodedText.split('').map(c => c.charCodeAt(0)));
+                    fileList = JSON.parse(utf8Decoder.decode(arrayBuffer));
+                }
+            } catch (e) {}
+
+            fileList.unshift(newFileObj);
+
+            const jsonString = JSON.stringify(fileList, null, 2);
+            const utf8Encoder = new TextEncoder();
+            const bytes = utf8Encoder.encode(jsonString);
+            let binary = '';
+            for (let i = 0; i < bytes.byteLength; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            const encodedContent = btoa(binary);
+
+            const body = { message: "Update files.json", content: encodedContent };
+            if (currentSha) body.sha = currentSha;
+
+            const response = await fetch(url, {
+                method: 'PUT',
+                headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            if (!response.ok) throw new Error("Kunde inte uppdatera files.json.");
+        }
+    </script>
+</body>
+</html>
