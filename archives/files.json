@@ -1,5 +1,18 @@
 [
   {
+    "id": "doc-1780928380499",
+    "title": "Hexagonkarta Göteborg",
+    "description": "Göteborgskartan från regelboken",
+    "pdfUrl": "https://raw.githubusercontent.com/Antiprenor/Antiprenor/main/archives/1780928380499-gbgkarta.pdf",
+    "imageUrl": "https://raw.githubusercontent.com/Antiprenor/Antiprenor/main/archives/images/1780928380499-gbgkarta.png",
+    "tags": [
+      "karta",
+      "hex",
+      "göteborg"
+    ],
+    "date": "2026-06-08"
+  },
+  {
     "id": "doc-1780086172210",
     "title": "Test karta",
     "description": "Karta",
