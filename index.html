@@ -1235,6 +1235,32 @@
 
   <!-- Base64 Uploader & GitHub API connection script -->
   <script>
+    // System Logger to display in the admin panel's sub-console
+    function adminLog(message, isError = false) {
+      const progBox = document.getElementById('uploadProgress');
+      if (progBox) {
+        progBox.classList.remove('hidden');
+        const p = document.createElement('p');
+        p.className = isError ? "text-red-500 font-bold" : "text-[var(--primary)]";
+        p.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+        progBox.appendChild(p);
+        progBox.scrollTop = progBox.scrollHeight;
+      }
+    }
+
+    // Conversion helper: Files to Base64 (excluding meta declaration)
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+          const base64String = reader.result.split(',')[1];
+          resolve(base64String);
+        };
+        reader.onerror = error => reject(error);
+      });
+    }
+
     // Submission interceptor for document creation
     async function handleUploadSubmit(e) {
       e.preventDefault();
