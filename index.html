@@ -69,7 +69,7 @@
     .vignette {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: radial-gradient(circle, transparent 30%, rgba(0,0,0,0.7) 100%);
+      background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.7) 100%);
       pointer-events: none;
       z-index: 10;
     }
@@ -232,7 +232,7 @@
               </p>
               <h1 class="text-3xl sm:text-5xl font-bold tracking-wider uppercase text-glow flex items-center gap-2">
                 <span id="headerMainText">LADDAR TITEL...</span>
-                <span class="text-xs bg-[var(--primary)] text-black px-1.5 py-0.5 rounded blink font-bold">LIVE</span>
+                <span class="text-xs bg-[var(--primary)] text-black px-1.5 py-0.5 rounded blink font-bold">ONLINE</span>
               </h1>
             </div>
             
@@ -265,7 +265,7 @@
             <div>
               <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-bold tracking-wider text-glow flex items-center gap-2">
-                  <span>📂 NO:A ARKIV</span>
+                  <span>📂 DEKLASSIFICERADE ARKIV</span>
                 </h2>
                 <!-- Local Filter Search -->
                 <input type="text" id="archiveSearch" oninput="filterArchives()" placeholder="Sök i arkivet..." class="bg-black text-[var(--primary)] border border-[var(--primary)] px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--primary)] w-48 font-mono">
@@ -295,7 +295,7 @@
             
             <!-- Quick Dice Roller (Highly Upgraded RPG Feature) -->
             <div class="border border-[var(--primary)] p-3 bg-black flex flex-col gap-2 text-xs">
-              <h3 class="text-base font-bold text-glow border-b border-[var(--primary)] pb-1">🎲 RULLA TÄRNINGAR</h3>
+              <h3 class="text-base font-bold text-glow border-b border-[var(--primary)] pb-1">🎲 TÄRNINGSRULLARE</h3>
               
               <!-- Dice Inputs -->
               <div class="grid grid-cols-2 gap-2 font-mono">
@@ -324,7 +324,7 @@
               </label>
 
               <!-- Trigger roll -->
-              <button onclick="triggerRoll()" class="btn-terminal w-full py-1.5 font-bold tracking-widest text-xs uppercase">RULLA!!!</button>
+              <button onclick="triggerRoll()" class="btn-terminal w-full py-1.5 font-bold tracking-widest text-xs uppercase">RULLA TÄRNING</button>
 
               <!-- Result Screen -->
               <div class="bg-black border border-dashed border-[var(--primary)] p-2 text-center h-20 flex flex-col justify-center items-center overflow-hidden">
@@ -340,7 +340,7 @@
                 <h3 class="text-sm font-bold text-glow mb-1">📟 SYSTEMDIAGNOSTIK</h3>
                 <div id="systemLog" class="text-xs font-mono space-y-1 h-36 lg:h-48 overflow-y-auto">
                   <p class="text-gray-500">[10:13:02] Terminal uppstartad.</p>
-                  <p class="text-gray-500">[10:13:04] Ansluter till N0A-nätverk...</p>
+                  <p class="text-gray-500">[10:13:04] Ansluter till mil-nätverk...</p>
                   <p class="text-[var(--primary)]">[OK] Säkrat gränssnitt upprättat.</p>
                   <p class="text-[var(--primary)]">[INFO] Skjut dom i huvudet är aktivt.</p>
                 </div>
@@ -349,8 +349,8 @@
 
             <!-- Audio/Visual Switch panel -->
             <div class="p-2 border border-red-900 bg-black/80 flex items-center justify-between text-xs">
-              <span class="text-red-500 font-bold tracking-widest animate-pulse">STRÖMKÄLLA: SOLCELLER </span>
-              <button onclick="toggleCrtPower()" class="bg-red-950 text-red-400 px-2 py-1 border border-red-500 hover:bg-red-500 hover:text-black font-bold">STÄNG AV</button>
+              <span class="text-red-500 font-bold tracking-widest animate-pulse">STRÖMKÄLLA: REAKTOR</span>
+              <button onclick="toggleCrtPower()" class="bg-red-950 text-red-400 px-2 py-1 border border-red-500 hover:bg-red-500 hover:text-black font-bold">AVBRYT STRÖM</button>
             </div>
           </section>
         </main>
@@ -363,7 +363,7 @@
           </div>
           <div>
             <a href="#adminSection" onclick="toggleAdminPanel(event)" class="underline hover:text-white cursor-pointer flex items-center gap-1">
-              ⚙️ [ADMINISTRATÖRSKONSOL]
+              ⚙️ [ADMINISTRATÖRSKONSOL (GITHUB UPPSTÄLLNING)]
             </a>
           </div>
         </footer>
@@ -378,13 +378,13 @@
       <div class="crt-screen-wrapper p-4 sm:p-6 bg-black text-[var(--primary)]">
         
         <div class="flex justify-between items-center border-b border-[var(--primary)] pb-2 mb-4">
-          <h2 class="text-2xl font-bold text-glow">🛠️ ADMINISTRATÖRSKONSOL</h2>
+          <h2 class="text-2xl font-bold text-glow">🛠️ ADMINISTRATÖRSKONSOL - GITHUB REPO INTEGRATION</h2>
           <button onclick="closeAdminPanel()" class="border border-red-500 text-red-500 px-2 py-1 text-xs hover:bg-red-500 hover:text-black font-mono">STÄNG [X]</button>
         </div>
 
         <p class="text-sm mb-4 opacity-80 leading-relaxed">
-          Sidan körs (<span class="underline text-white">antiprenor.github.io/Antiprenor/</span>).
-          Härifrån kan du konfigurera en personlig åtkomst-token (Personal Access Token). När den är inmatad kan du ladda upp PDF-filer och tillhörande omslag direkt till repot på GitHub. Systemet lägger till filen i din databas (<code class="bg-black px-1 text-white">archives/files.json</code>) så att den visas direkt här i arkivlistan ovan!
+          Sidan körs från din GitHub Pages-miljö (<span class="underline text-white">antiprenor.github.io/Antiprenor/</span>).
+          Härifrån kan du konfigurera en personlig åtkomst-token (Personal Access Token) för din GitHub-profil. När den är inmatad kan du ladda upp PDF-filer och tillhörande omslag direkt till repot på GitHub. Systemet lägger till filen i din databas (<code class="bg-black px-1 text-white">archives/files.json</code>) så databasen uppdateras live!
         </p>
 
         <!-- Credentials configuration -->
@@ -401,7 +401,7 @@
         </div>
 
         <!-- File Upload Form -->
-        <div class="border border-[var(--primary)] p-4 bg-black/40">
+        <div class="border border-[var(--primary)] p-4 bg-black/40 mb-6">
           <h3 class="text-lg font-bold text-glow mb-4">📁 SKICKA NYTT DOKUMENT TILL ARKIVET</h3>
           
           <form id="uploadForm" onsubmit="handleUploadSubmit(event)" class="space-y-4">
@@ -442,6 +442,14 @@
               <button type="submit" class="btn-terminal font-bold px-8 py-3">SÄND FIL TILL REPOSITORIE</button>
             </div>
           </form>
+        </div>
+
+        <!-- File Management Section (TA BORT FILER AUTOMATISKT) -->
+        <div class="border border-[var(--primary)] p-4 bg-black/40">
+          <h3 class="text-lg font-bold text-glow mb-4">🛠️ HANTERA EXISTERANDE ARKIVFILER</h3>
+          <div id="adminFileList" class="space-y-2 max-h-60 overflow-y-auto pr-2 font-mono">
+            <p class="text-xs opacity-60 italic">Väntar på att dokumentdatabasen ska läsas in...</p>
+          </div>
         </div>
 
       </div>
@@ -498,6 +506,28 @@
         }
       }
       return window.location.origin + path + filename;
+    }
+
+    // Helper för att extrahera ett rent filnamn från en URL
+    function getFilenameFromUrl(url) {
+      if (!url || url === "#") return "DOKUMENT.PDF";
+      try {
+        const decoded = decodeURIComponent(url.split('?')[0]);
+        let name = decoded.split('/').pop();
+        // Om filnamnet börjar med en tidsstämpel och ett streck (t.ex. "17178...-namn.pdf"), ta bort det för en renare visning
+        if (/^\d+-/.test(name)) {
+          name = name.substring(name.indexOf('-') + 1);
+        }
+        return name || "DOKUMENT.PDF";
+      } catch(e) {
+        return "DOKUMENT.PDF";
+      }
+    }
+
+    // Enkel funktion för att rensa HTML-tecken
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     }
 
     let audioCtx = null;
@@ -627,7 +657,7 @@
     };
 
     function changeTheme(themeName) {
-      // Skärmen är låst till Amber 
+      // Skärmen är låst till Amber för atmosfäriskt kalla-kriget skydd
       currentTheme = 'amber';
       const theme = themes.amber;
       document.documentElement.style.setProperty('--primary', theme.primary);
@@ -934,15 +964,28 @@
       }
 
       currentArchives.forEach(archive => {
-        // SVG fallback färgad i Amber (#ffb000)
-        const imgPath = archive.imageUrl || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23111'/><text x='50%25' y='50%25' font-family='sans-serif' font-size='10' fill='%23ffb000' dominant-baseline='middle' text-anchor='middle'>ZOMBIE FILE</text></svg>";
+        const filename = getFilenameFromUrl(archive.pdfUrl);
         const tagsHtml = archive.tags ? archive.tags.map(t => `<span class="border border-[var(--primary)] px-1.5 py-0.2 text-[10px] mr-1">${t.toUpperCase()}</span>`).join('') : '';
 
         const card = document.createElement('div');
         card.className = "file-card p-3 flex gap-3 flex-col sm:flex-row items-start justify-between rounded";
+        
+        let thumbnailHtml = "";
+        if (archive.imageUrl) {
+          thumbnailHtml = `<img src="${archive.imageUrl}" alt="Thumbnail" class="w-full h-full object-cover opacity-80" onerror="this.onerror=null; this.parentNode.innerHTML='<div class=\\'w-full h-full flex flex-col justify-between items-center py-1\\'><span class=\\'text-[10px] opacity-60 font-mono tracking-tight uppercase border-b border-[var(--primary)] pb-0.5 w-full truncate\\'>FILNAMN</span><span class=\\'text-[11px] font-mono leading-none break-all line-clamp-4 px-0.5\\'>${escapeHtml(filename)}</span><span class=\\'text-[10px] font-bold opacity-60\\'>PDF</span></div>';">`;
+        } else {
+          thumbnailHtml = `
+            <div class="w-full h-full flex flex-col justify-between items-center py-1">
+              <span class="text-[10px] opacity-60 font-mono tracking-tight uppercase leading-none border-b border-[var(--primary)] pb-0.5 w-full truncate">FILNAMN</span>
+              <span class="text-[11px] font-mono leading-none break-all line-clamp-4 px-0.5" title="${escapeHtml(filename)}">${escapeHtml(filename)}</span>
+              <span class="text-[10px] font-bold opacity-60 font-mono leading-none">PDF</span>
+            </div>
+          `;
+        }
+
         card.innerHTML = `
-          <div class="flex-shrink-0 w-20 h-24 bg-black border border-[var(--primary)] overflow-hidden hidden sm:flex items-center justify-center">
-            <img src="${imgPath}" alt="Thumbnail" class="w-full h-full object-cover opacity-80" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'100\\' height=\\'120\\' viewBox=\\'0 0 100 120\\'><rect width=\\'100\\' height=\\'120\\' fill=\\'black\\'/><path d=\\'M20,20 L80,20 L80,100 L20,100 Z\\' stroke=\\'%23ffb000\\' stroke-width=\\'2\\' fill=\\'none\\'/><text x=\\'50%25\\' y=\\'50%25\\' font-family=\\'monospace\\' font-size=\\'12\\' fill=\\'%23ffb000\\' text-anchor=\\'middle\\'>PDF</text></svg>'">
+          <div class="flex-shrink-0 w-20 h-24 bg-black border border-[var(--primary)] overflow-hidden hidden sm:flex items-center justify-center p-1 text-center">
+            ${thumbnailHtml}
           </div>
           <div class="flex-grow flex flex-col justify-between h-full space-y-2">
             <div>
@@ -962,6 +1005,130 @@
         `;
         container.appendChild(card);
       });
+
+      // Uppdatera även listan över filer i administratörspanelen
+      renderAdminFileList();
+    }
+
+    // Renderar en filhanteringslista i administratörspanelen för snabb radering
+    function renderAdminFileList() {
+      const container = document.getElementById('adminFileList');
+      if (!container) return;
+      container.innerHTML = "";
+
+      if (currentArchives.length === 0) {
+        container.innerHTML = `<p class="text-xs opacity-60 italic">Inga filer registrerade i databasen.</p>`;
+        return;
+      }
+
+      currentArchives.forEach(archive => {
+        const div = document.createElement('div');
+        div.className = "flex items-center justify-between p-2 border border-dashed border-[var(--primary)] bg-black/60 text-xs";
+        div.innerHTML = `
+          <div>
+            <span class="font-bold text-white">${escapeHtml(archive.title)}</span> <span class="opacity-50 font-mono">(${archive.date})</span>
+          </div>
+          <div class="flex items-center gap-2" id="del-container-${archive.id}">
+            <button onclick="confirmDeleteFile('${archive.id}', '${escapeHtml(archive.title)}')" class="bg-red-950 text-red-400 hover:bg-red-500 hover:text-black border border-red-500 px-2 py-0.5 font-bold font-mono">🗑️ RADERA</button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // Frågar administratören om hen verkligen vill radera dokumentet (Utan alert/popup)
+    function confirmDeleteFile(id, title) {
+      playBeep(150, 'sawtooth', 0.2, 0.2);
+      const container = document.getElementById(`del-container-${id}`);
+      if (!container) return;
+
+      container.innerHTML = `
+        <span class="text-red-500 font-bold mr-1">SÄKER?</span>
+        <button onclick="deleteFileLive('${id}')" class="bg-red-600 text-white px-2 py-0.5 font-bold mr-1 font-mono">JA</button>
+        <button onclick="renderAdminFileList()" class="border border-[var(--primary)] px-2 py-0.5 font-mono">NEJ</button>
+      `;
+    }
+
+    // Tar bort filen och sparar databasen på GitHub live
+    async function deleteFileLive(id) {
+      const token = document.getElementById('githubToken').value;
+      const fileToDel = currentArchives.find(f => f.id === id);
+      if (!fileToDel) return;
+
+      document.getElementById('uploadProgress').innerHTML = `<p class="text-red-500 font-bold">[RADERINGSMOTOR AKTIVERAD...]</p>`;
+
+      // Sandbox-läge om token saknas
+      if (!token) {
+        adminLog("⚠️ Ingen token hittad! Simulerar borttagning ur databasen...", false);
+        setTimeout(() => {
+          currentArchives = currentArchives.filter(f => f.id !== id);
+          renderArchives();
+          playSuccess();
+          adminLog(`[SUCCESS] Dokumentet '${fileToDel.title}' simulerades raderat ur lokal session!`);
+          logSystem(`Simulerade borttagning av '${fileToDel.title}'.`);
+        }, 1200);
+        return;
+      }
+
+      adminLog(`Ansluter till GitHub för att radera '${fileToDel.title}'...`);
+
+      const repoOwner = CONFIG.REPO_OWNER;
+      const repoName = CONFIG.REPO_NAME;
+      const branch = CONFIG.BRANCH;
+      const dbPath = CONFIG.UPLOAD_DB_PATH;
+      const dbUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${dbPath}`;
+
+      try {
+        // Hämta färsk SHA och array från databasen
+        const dbCheckRes = await fetch(`${dbUrl}?t=${Date.now()}`, {
+          headers: { 'Authorization': `token ${token}` }
+        });
+
+        if (dbCheckRes.status !== 200) {
+          throw new Error("Kunde inte ladda ner files.json för uppdatering från GitHub.");
+        }
+
+        const dbData = await dbCheckRes.json();
+        const dbSha = dbData.sha;
+        const decodedContent = atob(dbData.content);
+        const decodedUtf8 = decodeURIComponent(escape(decodedContent));
+        let dbArray = JSON.parse(decodedUtf8);
+
+        // Filtrera bort den raderade filen
+        dbArray = dbArray.filter(f => f.id !== id);
+
+        // Koda och ladda upp till GitHub
+        const updatedDbString = JSON.stringify(dbArray, null, 2);
+        const updatedDbBase64 = btoa(unescape(encodeURIComponent(updatedDbString)));
+
+        const dbUpdateRes = await fetch(dbUrl, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `token ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: `Tog bort dokumentet: ${fileToDel.title}`,
+            content: updatedDbBase64,
+            sha: dbSha,
+            branch: branch
+          })
+        });
+
+        if (!dbUpdateRes.ok) throw new Error(`Kunde inte skriva ändringen till GitHub API. Felkod: ${dbUpdateRes.status}`);
+
+        adminLog(`🎉 [OK] DATABAS UPPDATERAD! '${fileToDel.title}' är raderad permanent!`, false);
+        playSuccess();
+        logSystem(`Dokumentet '${fileToDel.title}' raderades live.`);
+
+        currentArchives = dbArray;
+        renderArchives();
+
+      } catch (err) {
+        adminLog(`❌ FEL VID RADERING: ${err.message}`, true);
+        playError();
+        logSystem(`Radering misslyckades: ${err.message}`);
+      }
     }
 
     // Filter local display based on search input
@@ -982,14 +1149,28 @@
       }
 
       filtered.forEach(archive => {
-        const imgPath = archive.imageUrl || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23111'/><text x='50%25' y='50%25' font-family='sans-serif' font-size='10' fill='%23ffb000' dominant-baseline='middle' text-anchor='middle'>GLENN-FIL</text></svg>";
+        const filename = getFilenameFromUrl(archive.pdfUrl);
         const tagsHtml = archive.tags ? archive.tags.map(t => `<span class="border border-[var(--primary)] px-1.5 py-0.2 text-[10px] mr-1">${t.toUpperCase()}</span>`).join('') : '';
 
         const card = document.createElement('div');
         card.className = "file-card p-3 flex gap-3 flex-col sm:flex-row items-start justify-between rounded";
+        
+        let thumbnailHtml = "";
+        if (archive.imageUrl) {
+          thumbnailHtml = `<img src="${archive.imageUrl}" alt="Thumbnail" class="w-full h-full object-cover opacity-80" onerror="this.onerror=null; this.parentNode.innerHTML='<div class=\\'w-full h-full flex flex-col justify-between items-center py-1\\'><span class=\\'text-[10px] opacity-60 font-mono tracking-tight uppercase border-b border-[var(--primary)] pb-0.5 w-full truncate\\'>FILNAMN</span><span class=\\'text-[11px] font-mono leading-none break-all line-clamp-4 px-0.5\\'>${escapeHtml(filename)}</span><span class=\\'text-[10px] font-bold opacity-60\\'>PDF</span></div>';">`;
+        } else {
+          thumbnailHtml = `
+            <div class="w-full h-full flex flex-col justify-between items-center py-1">
+              <span class="text-[10px] opacity-60 font-mono tracking-tight uppercase leading-none border-b border-[var(--primary)] pb-0.5 w-full truncate">FILNAMN</span>
+              <span class="text-[11px] font-mono leading-none break-all line-clamp-4 px-0.5" title="${escapeHtml(filename)}">${escapeHtml(filename)}</span>
+              <span class="text-[10px] font-bold opacity-60 font-mono leading-none">PDF</span>
+            </div>
+          `;
+        }
+
         card.innerHTML = `
-          <div class="flex-shrink-0 w-20 h-24 bg-black border border-[var(--primary)] overflow-hidden hidden sm:flex items-center justify-center">
-            <img src="${imgPath}" alt="Thumbnail" class="w-full h-full object-cover opacity-80" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'100\\' height=\\'120\\' viewBox=\\'0 0 100 120\\'><rect width=\\'100\\' height=\\'120\\' fill=\\'black\\'/><path d=\\'M20,20 L80,20 L80,100 L20,100 Z\\' stroke=\\'%23ffb000\\' stroke-width=\\'2\\' fill=\\'none\\'/><text x=\\'50%25\\' y=\\'50%25\\' font-family=\\'monospace\\' font-size=\\'12\\' fill=\\'%23ffb000\\' text-anchor=\\'middle\\'>PDF</text></svg>'">
+          <div class="flex-shrink-0 w-20 h-24 bg-black border border-[var(--primary)] overflow-hidden hidden sm:flex items-center justify-center p-1 text-center">
+            ${thumbnailHtml}
           </div>
           <div class="flex-grow flex flex-col justify-between h-full space-y-2">
             <div>
@@ -1054,30 +1235,6 @@
 
   <!-- Base64 Uploader & GitHub API connection script -->
   <script>
-    // System Logger to display in the admin panel's sub-console
-    function adminLog(message, isError = false) {
-      const progBox = document.getElementById('uploadProgress');
-      progBox.classList.remove('hidden');
-      const p = document.createElement('p');
-      p.className = isError ? "text-red-500" : "text-[var(--primary)]";
-      p.innerText = `[${new Date().toLocaleTimeString()}] ${message}`;
-      progBox.appendChild(p);
-      progBox.scrollTop = progBox.scrollHeight;
-    }
-
-    // Conversion helper: Files to Base64 (excluding meta declaration)
-    function fileToBase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => {
-          const base64String = reader.result.split(',')[1];
-          resolve(base64String);
-        };
-        reader.onerror = error => reject(error);
-      });
-    }
-
     // Submission interceptor for document creation
     async function handleUploadSubmit(e) {
       e.preventDefault();
