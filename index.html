@@ -982,7 +982,7 @@
       }
 
       filtered.forEach(archive => {
-        const imgPath = archive.imageUrl || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23111'/><text x='50%25' y='50%25' font-family='sans-serif' font-size='10' fill='%23ffb000' dominant-baseline='middle' text-anchor='middle'>ZOMBIE FILE</text></svg>";
+        const imgPath = archive.imageUrl || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23111'/><text x='50%25' y='50%25' font-family='sans-serif' font-size='10' fill='%23ffb000' dominant-baseline='middle' text-anchor='middle'>GLENN-FIL</text></svg>";
         const tagsHtml = archive.tags ? archive.tags.map(t => `<span class="border border-[var(--primary)] px-1.5 py-0.2 text-[10px] mr-1">${t.toUpperCase()}</span>`).join('') : '';
 
         const card = document.createElement('div');
