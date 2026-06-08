@@ -14,7 +14,7 @@
   <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 
   <style>
-    /* Global Retro terminal styling - Fastlåst till Amber */
+    /* Amberstyling */
     :root {
       --primary: #ffb000;
       --glow: rgba(255, 176, 0, 0.45);
@@ -69,7 +69,7 @@
     .vignette {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.7) 100%);
+      background: radial-gradient(circle, transparent 30%, rgba(0,0,0,0.7) 100%);
       pointer-events: none;
       z-index: 10;
     }
@@ -265,7 +265,7 @@
             <div>
               <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-bold tracking-wider text-glow flex items-center gap-2">
-                  <span>📂 DEKLASSIFICERADE ARKIV</span>
+                  <span>📂 NO:A ARKIV</span>
                 </h2>
                 <!-- Local Filter Search -->
                 <input type="text" id="archiveSearch" oninput="filterArchives()" placeholder="Sök i arkivet..." class="bg-black text-[var(--primary)] border border-[var(--primary)] px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--primary)] w-48 font-mono">
@@ -295,7 +295,7 @@
             
             <!-- Quick Dice Roller (Highly Upgraded RPG Feature) -->
             <div class="border border-[var(--primary)] p-3 bg-black flex flex-col gap-2 text-xs">
-              <h3 class="text-base font-bold text-glow border-b border-[var(--primary)] pb-1">🎲 STRIDSKALKYLATOR</h3>
+              <h3 class="text-base font-bold text-glow border-b border-[var(--primary)] pb-1">🎲 RULLA TÄRNINGAR</h3>
               
               <!-- Dice Inputs -->
               <div class="grid grid-cols-2 gap-2 font-mono">
@@ -324,7 +324,7 @@
               </label>
 
               <!-- Trigger roll -->
-              <button onclick="triggerRoll()" class="btn-terminal w-full py-1.5 font-bold tracking-widest text-xs uppercase">AKTIVERA STRIDSKALKYLATOR</button>
+              <button onclick="triggerRoll()" class="btn-terminal w-full py-1.5 font-bold tracking-widest text-xs uppercase">RULLA!!!</button>
 
               <!-- Result Screen -->
               <div class="bg-black border border-dashed border-[var(--primary)] p-2 text-center h-20 flex flex-col justify-center items-center overflow-hidden">
@@ -340,7 +340,7 @@
                 <h3 class="text-sm font-bold text-glow mb-1">📟 SYSTEMDIAGNOSTIK</h3>
                 <div id="systemLog" class="text-xs font-mono space-y-1 h-36 lg:h-48 overflow-y-auto">
                   <p class="text-gray-500">[10:13:02] Terminal uppstartad.</p>
-                  <p class="text-gray-500">[10:13:04] Ansluter till mil-nätverk...</p>
+                  <p class="text-gray-500">[10:13:04] Ansluter till N0A-nätverk...</p>
                   <p class="text-[var(--primary)]">[OK] Säkrat gränssnitt upprättat.</p>
                   <p class="text-[var(--primary)]">[INFO] Skjut dom i huvudet är aktivt.</p>
                 </div>
@@ -349,8 +349,8 @@
 
             <!-- Audio/Visual Switch panel -->
             <div class="p-2 border border-red-900 bg-black/80 flex items-center justify-between text-xs">
-              <span class="text-red-500 font-bold tracking-widest animate-pulse">STRÖMKÄLLA: REAKTOR</span>
-              <button onclick="toggleCrtPower()" class="bg-red-950 text-red-400 px-2 py-1 border border-red-500 hover:bg-red-500 hover:text-black font-bold">AVBRYT STRÖM</button>
+              <span class="text-red-500 font-bold tracking-widest animate-pulse">STRÖMKÄLLA: SOLCELLER </span>
+              <button onclick="toggleCrtPower()" class="bg-red-950 text-red-400 px-2 py-1 border border-red-500 hover:bg-red-500 hover:text-black font-bold">STÄNG AV</button>
             </div>
           </section>
         </main>
@@ -363,7 +363,7 @@
           </div>
           <div>
             <a href="#adminSection" onclick="toggleAdminPanel(event)" class="underline hover:text-white cursor-pointer flex items-center gap-1">
-              ⚙️ [ADMINISTRATÖRSKONSOL (GITHUB UPPSTÄLLNING)]
+              ⚙️ [ADMINISTRATÖRSKONSOL]
             </a>
           </div>
         </footer>
@@ -378,13 +378,13 @@
       <div class="crt-screen-wrapper p-4 sm:p-6 bg-black text-[var(--primary)]">
         
         <div class="flex justify-between items-center border-b border-[var(--primary)] pb-2 mb-4">
-          <h2 class="text-2xl font-bold text-glow">🛠️ ADMINISTRATÖRSKONSOL - GITHUB REPO INTEGRATION</h2>
+          <h2 class="text-2xl font-bold text-glow">🛠️ ADMINISTRATÖRSKONSOL</h2>
           <button onclick="closeAdminPanel()" class="border border-red-500 text-red-500 px-2 py-1 text-xs hover:bg-red-500 hover:text-black font-mono">STÄNG [X]</button>
         </div>
 
         <p class="text-sm mb-4 opacity-80 leading-relaxed">
-          Sidan körs från din GitHub Pages-miljö (<span class="underline text-white">antiprenor.github.io/Antiprenor/</span>).
-          Härifrån kan du konfigurera en personlig åtkomst-token (Personal Access Token) för din GitHub-profil. När den är inmatad kan du ladda upp PDF-filer och tillhörande omslag direkt till repot på GitHub. Systemet lägger till filen i din databas (<code class="bg-black px-1 text-white">archives/files.json</code>) så att den visas direkt här i arkivlistan ovan!
+          Sidan körs (<span class="underline text-white">antiprenor.github.io/Antiprenor/</span>).
+          Härifrån kan du konfigurera en personlig åtkomst-token (Personal Access Token). När den är inmatad kan du ladda upp PDF-filer och tillhörande omslag direkt till repot på GitHub. Systemet lägger till filen i din databas (<code class="bg-black px-1 text-white">archives/files.json</code>) så att den visas direkt här i arkivlistan ovan!
         </p>
 
         <!-- Credentials configuration -->
@@ -627,7 +627,7 @@
     };
 
     function changeTheme(themeName) {
-      // Skärmen är låst till Amber för atmosfäriskt kalla-kriget skydd
+      // Skärmen är låst till Amber 
       currentTheme = 'amber';
       const theme = themes.amber;
       document.documentElement.style.setProperty('--primary', theme.primary);
