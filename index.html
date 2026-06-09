@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Skjut dom i huvudet - Retroterminal</title>
+  <title>Skjut dom i huvudet - zombierollspelet</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -249,12 +249,6 @@
               </button>
             </div>
           </div>
-
-          <!-- Decorative Color Status Dashboard (Amber Monochrome) -->
-          <div class="mt-4 flex flex-wrap gap-2 items-center text-sm">
-            <span class="opacity-70">SYSTEMMONITOR:</span>
-            <span class="text-[#ffb000] border border-[#ffb000] px-2 py-0.5 bg-black/50 font-bold tracking-widest">MONOKROM [AMBER-SÄKRAD STYRENHET] AKTIV</span>
-          </div>
         </header>
 
         <!-- Main Workspace Area -->
@@ -349,8 +343,8 @@
 
             <!-- Audio/Visual Switch panel -->
             <div class="p-2 border border-red-900 bg-black/80 flex items-center justify-between text-xs">
-              <span class="text-red-500 font-bold tracking-widest animate-pulse">STRÖMKÄLLA: REAKTOR</span>
-              <button onclick="toggleCrtPower()" class="bg-red-950 text-red-400 px-2 py-1 border border-red-500 hover:bg-red-500 hover:text-black font-bold">AVBRYT STRÖM</button>
+              <span class="text-red-500 font-bold tracking-widest animate-pulse">STRÖMKÄLLA: Solceller</span>
+              <button onclick="toggleCrtPower()" class="bg-red-950 text-red-400 px-2 py-1 border border-red-500 hover:bg-red-500 hover:text-black font-bold">STÄNG AV</button>
             </div>
           </section>
         </main>
@@ -375,7 +369,23 @@
   <!-- HIDDEN ADMIN SECTION (FOLDS DOWN DRAMATICALLY) -->
   <section id="adminSection" class="max-w-6xl w-full mx-auto mt-4 hidden">
     <div class="crt-bezel p-4 sm:p-6">
-      <div class="crt-screen-wrapper p-4 sm:p-6 bg-black text-[var(--primary)]">
+      
+      <!-- AUTH CONSOLE -->
+      <div id="adminAuthContainer" class="crt-screen-wrapper p-4 sm:p-6 bg-black text-[var(--primary)] flex flex-col items-center justify-center min-h-[250px]">
+        <div class="max-w-md w-full text-center space-y-4 my-auto">
+          <h2 class="text-xl font-bold text-glow tracking-widest text-red-500 animate-pulse">⚠️ SÄKERHETSSPÄRR: MIL-NET DEKRYPTERING</h2>
+          <p class="text-sm opacity-80 font-mono">Ange behörighetskod för att ansluta till databasmodifieraren:</p>
+          <div class="flex flex-col sm:flex-row gap-2 justify-center items-center">
+            <input type="password" id="adminPasswordInput" placeholder="DEKRYPTERINGSNYCKEL..." onkeyup="if(event.key === 'Enter') checkAdminPassword()" class="bg-black text-[var(--primary)] border border-[var(--primary)] px-3 py-2 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-[var(--primary)] text-center tracking-widest w-full sm:w-64">
+            <button onclick="checkAdminPassword()" class="btn-terminal px-4 py-2 text-sm font-bold font-mono tracking-widest w-full sm:w-auto">VERIFIERA</button>
+          </div>
+          <p id="authErrorMsg" class="text-xs text-red-500 font-bold hidden font-mono animate-pulse">[FELAKTIG DEKRYPTERINGSNYCKEL - TILLTRÄDE NEKAD]</p>
+          <button onclick="closeAdminPanel()" class="text-xs underline opacity-60 hover:opacity-100 font-mono block mx-auto">AVBRYT</button>
+        </div>
+      </div>
+
+      <!-- MAIN ADMIN PANEL CONTENT (Unlocks after typing 'cellblock1138') -->
+      <div id="adminContentContainer" class="crt-screen-wrapper p-4 sm:p-6 bg-black text-[var(--primary)] hidden">
         
         <div class="flex justify-between items-center border-b border-[var(--primary)] pb-2 mb-4">
           <h2 class="text-2xl font-bold text-glow">🛠️ ADMINISTRATÖRSKONSOL - GITHUB REPO INTEGRATION</h2>
@@ -829,7 +839,7 @@
         
         if (parsedTips.length > 0) {
           tipsList = parsedTips;
-          logSystem(`Framgångsrikt synkroniserat ${tipsList.length} speltips från zombietips.txt.`);
+          logSystem(`Framgångsrikt synkroniserat och transkriberat ${tipsList.length} sändningar.`);
         } else {
           logSystem("Varning: zombietips.txt hittades men var tom. Laddar reservrekommendationer.");
         }
@@ -1192,17 +1202,51 @@
       });
     }
 
-    // Toggle slide-down console view
+    // Toggle slide-down console view with dynamic password authorization screen
+    let isAdminUnlocked = false;
+
     function toggleAdminPanel(e) {
-      e.preventDefault();
+      if (e) e.preventDefault();
       const panel = document.getElementById('adminSection');
       panel.classList.toggle('hidden');
+      
       if (!panel.classList.contains('hidden')) {
         playBeep(220, 'triangle', 0.2, 0.2);
         setTimeout(() => playBeep(440, 'triangle', 0.2, 0.1), 150);
         panel.scrollIntoView({ behavior: 'smooth' });
+        
+        // Show authentication form if not already authenticated
+        if (!isAdminUnlocked) {
+          document.getElementById('adminAuthContainer').classList.remove('hidden');
+          document.getElementById('adminContentContainer').classList.add('hidden');
+          setTimeout(() => {
+            document.getElementById('adminPasswordInput')?.focus();
+          }, 300);
+        } else {
+          document.getElementById('adminAuthContainer').classList.add('hidden');
+          document.getElementById('adminContentContainer').classList.remove('hidden');
+        }
       } else {
         playBeep(330, 'triangle', 0.15, 0.2);
+      }
+    }
+
+    function checkAdminPassword() {
+      const password = document.getElementById('adminPasswordInput').value;
+      const errorMsg = document.getElementById('authErrorMsg');
+      
+      if (password === "cellblock1138") {
+        isAdminUnlocked = true;
+        errorMsg.classList.add('hidden');
+        document.getElementById('adminAuthContainer').classList.add('hidden');
+        document.getElementById('adminContentContainer').classList.remove('hidden');
+        document.getElementById('adminPasswordInput').value = "";
+        playSuccess();
+        logSystem("Administratörsbehörighet godkänd.");
+      } else {
+        playError();
+        errorMsg.classList.remove('hidden');
+        logSystem("VARNING: Misslyckat inloggningsförsök i administratörskonsol.");
       }
     }
 
