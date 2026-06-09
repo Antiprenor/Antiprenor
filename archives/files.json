@@ -1,5 +1,18 @@
 [
   {
+    "id": "doc-1780990596650",
+    "title": "Kustkarta",
+    "description": "Kartan från expansionen Odöd Kust",
+    "pdfUrl": "https://raw.githubusercontent.com/Antiprenor/Antiprenor/main/archives/1780990596650-kustkarta.pdf",
+    "imageUrl": "https://raw.githubusercontent.com/Antiprenor/Antiprenor/main/archives/images/1780990596650-kustkarta.png",
+    "tags": [
+      "karta",
+      "odöd kust",
+      "handout"
+    ],
+    "date": "2026-06-09"
+  },
+  {
     "id": "doc-1780928380499",
     "title": "Hexagonkarta Göteborg",
     "description": "Göteborgskartan från regelboken",
