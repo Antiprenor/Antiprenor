@@ -152,5 +152,16 @@
     "file": "files/eca388051b0d4ae5.pdf",
     "icon": "icons/preset-map.svg",
     "created": 1790072259280
+  },
+  {
+    "id": "90ec4224363446f8",
+    "name": "Kartor för SL till Skräcken på Östra",
+    "description": "Som det låter!",
+    "color": "red",
+    "category": "for-sl-2",
+    "password_hash": null,
+    "file": "files/90ec4224363446f8.pdf",
+    "icon": "icons/preset-map.svg",
+    "created": 1790072327480
   }
 ]
