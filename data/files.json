@@ -119,5 +119,16 @@
     "file": "files/a5f4b84c17fb4c9f.pdf",
     "icon": "icons/preset-map.svg",
     "created": 1790072057582
+  },
+  {
+    "id": "4bd7dadac4f74819",
+    "name": "FORDONSFORMULÄR ur Diesel & Död",
+    "description": "Formulär och översiktsregler för fordon",
+    "color": "orange",
+    "category": "karaktarsblad",
+    "password_hash": null,
+    "file": "files/4bd7dadac4f74819.pdf",
+    "icon": "icons/preset-question.svg",
+    "created": 1790072115358
   }
 ]
