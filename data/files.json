@@ -141,5 +141,16 @@
     "file": "files/286a5389cff54567.pdf",
     "icon": "icons/preset-map.svg",
     "created": 1790072189018
+  },
+  {
+    "id": "eca388051b0d4ae5",
+    "name": "Kartor för SL till Choppa tills du droppar",
+    "description": "Kartor för SL",
+    "color": "red",
+    "category": "for-sl-2",
+    "password_hash": null,
+    "file": "files/eca388051b0d4ae5.pdf",
+    "icon": "icons/preset-map.svg",
+    "created": 1790072259280
   }
 ]
