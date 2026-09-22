@@ -31,5 +31,16 @@
     "file": "files/92b3e88bf69f4e08.pdf",
     "icon": "icons/preset-map.svg",
     "created": 1790067627425
+  },
+  {
+    "id": "df8e0fa54f494da3",
+    "name": "SMITTOKORT",
+    "description": "Här finns alla smittokort att skriva ut.",
+    "color": "orange",
+    "category": null,
+    "password_hash": null,
+    "file": "files/df8e0fa54f494da3.pdf",
+    "icon": "icons/preset-fist.svg",
+    "created": 1790069353525
   }
 ]
