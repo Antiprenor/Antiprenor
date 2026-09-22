@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "id": "3ea628c8c58b4eaa",
+    "name": "Handouts till Plågad Pist",
+    "description": "Handouts till Plågad Pist, innehåller hexagonkarta och annat till scenariot med samma namn. För material till Herdens historia kolla in de andra två samlingarna med handouts till Plågad Pist",
+    "color": "red",
+    "password_hash": null,
+    "file": "files/3ea628c8c58b4eaa.pdf",
+    "icon": null,
+    "created": 1790064166815
+  }
+]
