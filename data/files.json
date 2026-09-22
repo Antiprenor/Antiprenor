@@ -42,5 +42,16 @@
     "file": "files/df8e0fa54f494da3.pdf",
     "icon": "icons/preset-fist.svg",
     "created": 1790069353525
+  },
+  {
+    "id": "3ecdeb6621604304",
+    "name": "Kartor för SL ur HUVUDREGELBOKEN",
+    "description": "Här finns kartor som SL kan ha nytta av eller dela ut som handouts från Huvudregelboken. OBS endast för SL",
+    "color": "red",
+    "category": "for-sl-2",
+    "password_hash": null,
+    "file": "files/3ecdeb6621604304.pdf",
+    "icon": "icons/preset-map.svg",
+    "created": 1790069419107
   }
 ]
