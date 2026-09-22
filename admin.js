@@ -127,11 +127,6 @@ async function getFilesJson() {
   const json = b64DecodeUnicode(res.content.replace(/\n/g, ''));
   return { entries: JSON.parse(json), sha: res.sha };
 }
-async function saveFilesJson(entries, sha) {
-  const content = b64EncodeUnicode(JSON.stringify(entries, null, 2));
-  const res = await putFile('data/files.json', content, 'Update files.json', sha);
-  return res.content.sha;
-}
 
 async function getCategoriesJson() {
   const res = await getFile('data/categories.json');
@@ -139,11 +134,33 @@ async function getCategoriesJson() {
   const json = b64DecodeUnicode(res.content.replace(/\n/g, ''));
   return { categories: JSON.parse(json), sha: res.sha };
 }
-async function saveCategoriesJson(categories, sha) {
-  const content = b64EncodeUnicode(JSON.stringify(categories, null, 2));
-  const res = await putFile('data/categories.json', content, 'Update categories.json', sha);
-  return res.content.sha;
+
+// Re-reads the file and re-applies mutateFn against whatever's actually
+// there right now, retrying a few times. Needed because GitHub's Contents
+// API can briefly return a stale sha right after a write — a plain
+// read-then-write can otherwise fail with "<file> does not match <sha>"
+// even when nothing else was actually editing the file.
+async function updateJsonList(path, arrayKey, mutateFn, message) {
+  let lastErr;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const file = await getFile(path);
+    const list = file ? JSON.parse(b64DecodeUnicode(file.content.replace(/\n/g, ''))) : [];
+    const sha = file ? file.sha : null;
+    const newList = mutateFn(list);
+    const content = b64EncodeUnicode(JSON.stringify(newList, null, 2));
+    try {
+      await putFile(path, content, message, sha);
+      return newList;
+    } catch (e) {
+      lastErr = e;
+      if (attempt < 3 && /does not match/i.test(e.message)) continue;
+      throw e;
+    }
+  }
+  throw lastErr;
 }
+const updateFilesJson = (mutateFn, message) => updateJsonList('data/files.json', 'entries', mutateFn, message);
+const updateCategoriesJson = (mutateFn, message) => updateJsonList('data/categories.json', 'categories', mutateFn, message);
 
 const PRESET_ICONS = {
   'preset-fist': 'icons/preset-fist.svg',
@@ -244,10 +261,11 @@ async function addCategory() {
   const name = input.value.trim();
   if (!name) return;
   try {
-    const { categories, sha } = await getCategoriesJson();
-    const id = uniqueId(slugify(name), categories.map(c => c.id));
-    categories.push({ id, name });
-    await saveCategoriesJson(categories, sha);
+    await updateCategoriesJson((categories) => {
+      const id = uniqueId(slugify(name), categories.map(c => c.id));
+      categories.push({ id, name });
+      return categories;
+    }, `Add category ${name}`);
     input.value = '';
     await loadCategoriesAndPopulate();
   } catch (e) {
@@ -258,10 +276,11 @@ async function addCategory() {
 async function renameCategory(id, newName) {
   if (!newName) return;
   try {
-    const { categories, sha } = await getCategoriesJson();
-    const cat = categories.find(c => c.id === id);
-    if (cat) cat.name = newName;
-    await saveCategoriesJson(categories, sha);
+    await updateCategoriesJson((categories) => {
+      const cat = categories.find(c => c.id === id);
+      if (cat) cat.name = newName;
+      return categories;
+    }, `Rename category ${id}`);
     await loadCategoriesAndPopulate();
     refreshList();
   } catch (e) {
@@ -272,9 +291,7 @@ async function renameCategory(id, newName) {
 async function removeCategory(id, name) {
   if (!confirm(`Ta bort kategorin "${name}"? Filer som har den kategorin blir okategoriserade.`)) return;
   try {
-    const { categories, sha } = await getCategoriesJson();
-    const next = categories.filter(c => c.id !== id);
-    await saveCategoriesJson(next, sha);
+    await updateCategoriesJson((categories) => categories.filter(c => c.id !== id), `Delete category ${name}`);
     await loadCategoriesAndPopulate();
     refreshList();
   } catch (e) {
@@ -322,13 +339,14 @@ async function handleAdd(ev) {
 
     const passwordHash = password ? await sha256Hex(password) : null;
 
-    const { entries, sha } = await getFilesJson();
-    entries.push({
-      id, name: name || file.name, description, color, category,
-      password_hash: passwordHash, file: path, icon: iconPath,
-      created: Date.now()
-    });
-    await saveFilesJson(entries, sha);
+    await updateFilesJson((entries) => {
+      entries.push({
+        id, name: name || file.name, description, color, category,
+        password_hash: passwordHash, file: path, icon: iconPath,
+        created: Date.now()
+      });
+      return entries;
+    }, `Add ${name || file.name}`);
 
     ev.target.reset();
     document.getElementById('addIcon').style.display = 'none';
@@ -425,36 +443,40 @@ async function handleEdit(ev, oldEntry) {
     const clearPassword = form.clearPassword && form.clearPassword.checked;
     const category = form.category.value || null;
 
-    const { entries, sha } = await getFilesJson();
-    const idx = entries.findIndex(x => x.id === oldEntry.id);
-    if (idx === -1) throw new Error('Filen hittades inte — försök uppdatera sidan.');
-
-    entries[idx].name = name;
-    entries[idx].description = description;
-    entries[idx].color = color;
-    entries[idx].category = category;
-    if (clearPassword) {
-      entries[idx].password_hash = null;
-    } else if (password) {
-      entries[idx].password_hash = await sha256Hex(password);
-    }
+    // Anything async (hashing, uploading a new icon) has to happen before
+    // the mutate step below, since that step must run synchronously.
+    let newPasswordHash; // undefined = leave unchanged
+    if (clearPassword) newPasswordHash = null;
+    else if (password) newPasswordHash = await sha256Hex(password);
 
     const iconChoice = form.iconChoice.value;
+    let newIcon; // undefined = leave unchanged
     if (iconChoice === 'none') {
-      entries[idx].icon = null;
+      newIcon = null;
     } else if (PRESET_ICONS[iconChoice]) {
-      entries[idx].icon = PRESET_ICONS[iconChoice];
+      newIcon = PRESET_ICONS[iconChoice];
     } else if (iconChoice === 'custom' && form.iconFile.files[0]) {
       const icon = form.iconFile.files[0];
       const iconExt = (icon.name.split('.').pop() || 'png');
       const iconPath = `icons/${oldEntry.id}_icon.${iconExt}`;
       const iconB64 = await fileToBase64(icon);
       await commitFile(iconPath, iconB64, `Update icon for ${name}`);
-      entries[idx].icon = iconPath;
+      newIcon = iconPath;
     }
-    // else: "custom" with no new file picked — leave the existing icon as-is
+    // iconChoice === 'custom' with no new file picked → newIcon stays undefined (keep existing)
 
-    await saveFilesJson(entries, sha);
+    await updateFilesJson((entries) => {
+      const idx = entries.findIndex(x => x.id === oldEntry.id);
+      if (idx === -1) throw new Error('Filen hittades inte — försök uppdatera sidan.');
+      entries[idx].name = name;
+      entries[idx].description = description;
+      entries[idx].color = color;
+      entries[idx].category = category;
+      if (newPasswordHash !== undefined) entries[idx].password_hash = newPasswordHash;
+      if (newIcon !== undefined) entries[idx].icon = newIcon;
+      return entries;
+    }, `Update ${name}`);
+
     refreshList();
   } catch (e) {
     alert('Det gick inte att spara: ' + e.message);
@@ -472,9 +494,7 @@ async function handleDelete(entry) {
       const iconInfo = await getFile(entry.icon);
       if (iconInfo) await deleteFile(entry.icon, `Delete icon for ${entry.name}`, iconInfo.sha);
     }
-    const { entries, sha } = await getFilesJson();
-    const next = entries.filter(x => x.id !== entry.id);
-    await saveFilesJson(next, sha);
+    await updateFilesJson((entries) => entries.filter(x => x.id !== entry.id), `Delete ${entry.name}`);
     refreshList();
   } catch (e) {
     alert('Det gick inte att ta bort: ' + e.message);
