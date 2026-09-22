@@ -86,5 +86,16 @@
     "file": "files/625702dac69744a1.pdf",
     "icon": "icons/preset-map.svg",
     "created": 1790070099071
+  },
+  {
+    "id": "9956dca9009d4057",
+    "name": "Radiosändningarna till Odöd Kust",
+    "description": "Ljudinspelningar för SL att ha som handouts till Det sjunkande skeppet. Endast för SL",
+    "color": "red",
+    "category": "for-sl-2",
+    "password_hash": null,
+    "file": "files/9956dca9009d4057.zip",
+    "icon": "icons/preset-fist.svg",
+    "created": 1790070247648
   }
 ]
