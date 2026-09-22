@@ -108,5 +108,16 @@
     "file": "files/a6ef0bfe05eb46ac.pdf",
     "icon": "icons/preset-question.svg",
     "created": 1790070352193
+  },
+  {
+    "id": "a5f4b84c17fb4c9f",
+    "name": "Kartor för SL till Diesel & Död",
+    "description": "Sl's kartor för Diesel & Död",
+    "color": "red",
+    "category": "for-sl-2",
+    "password_hash": null,
+    "file": "files/a5f4b84c17fb4c9f.pdf",
+    "icon": "icons/preset-map.svg",
+    "created": 1790072057582
   }
 ]
