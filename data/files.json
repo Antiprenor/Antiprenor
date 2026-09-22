@@ -64,5 +64,16 @@
     "file": "files/43f846cc365a4994.pdf",
     "icon": "icons/preset-map.svg",
     "created": 1790069936652
+  },
+  {
+    "id": "0ffacc51f064429d",
+    "name": "Kustkarta till Odöd Kust",
+    "description": "Den stora kustkartan för Odöd Kust",
+    "color": "orange",
+    "category": "for-spelare",
+    "password_hash": null,
+    "file": "files/0ffacc51f064429d.pdf",
+    "icon": "icons/preset-map.svg",
+    "created": 1790070002601
   }
 ]
