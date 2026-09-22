@@ -97,5 +97,16 @@
     "file": "files/9956dca9009d4057.zip",
     "icon": "icons/preset-fist.svg",
     "created": 1790070247648
+  },
+  {
+    "id": "a6ef0bfe05eb46ac",
+    "name": "FLYTETYG/BÅTSFORMULÄR",
+    "description": "Formulär för att hålla koll på gruppens flytetyg/båt!",
+    "color": "orange",
+    "category": "karaktarsblad",
+    "password_hash": null,
+    "file": "files/a6ef0bfe05eb46ac.pdf",
+    "icon": "icons/preset-question.svg",
+    "created": 1790070352193
   }
 ]
