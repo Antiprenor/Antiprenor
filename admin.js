@@ -133,6 +133,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('connectBtn').addEventListener('click', connect);
   document.getElementById('addForm').addEventListener('submit', handleAdd);
+  document.getElementById('addIconChoice').addEventListener('change', (ev) => {
+    document.getElementById('addIcon').style.display = ev.target.value === 'custom' ? 'block' : 'none';
+  });
 
   if (saved && saved.token) connect();
 });
@@ -185,7 +188,10 @@ async function handleAdd(ev) {
     await commitFile(path, b64, `Add ${name || file.name}`);
 
     let iconPath = null;
-    if (iconInput.files[0]) {
+    const iconChoice = document.getElementById('addIconChoice').value;
+    if (iconChoice.startsWith('preset-')) {
+      iconPath = `icons/${iconChoice}.svg`; // already bundled in the repo, no upload needed
+    } else if (iconChoice === 'custom' && iconInput.files[0]) {
       const icon = iconInput.files[0];
       const iconExt = (icon.name.split('.').pop() || 'png');
       iconPath = `icons/${id}_icon.${iconExt}`;
@@ -225,6 +231,17 @@ function escapeHtml(s) {
   return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
+const PRESET_ICONS = {
+  'preset-fist': 'icons/preset-fist.svg',
+  'preset-map': 'icons/preset-map.svg',
+  'preset-question': 'icons/preset-question.svg'
+};
+function iconChoiceFor(entry) {
+  if (!entry.icon) return 'none';
+  const found = Object.entries(PRESET_ICONS).find(([, path]) => path === entry.icon);
+  return found ? found[0] : 'custom';
+}
+
 function renderEntry(e) {
   const div = document.createElement('div');
   div.className = 'entry' + (e.color === 'red' ? ' red' : '');
@@ -258,9 +275,22 @@ function renderEntry(e) {
       </div>
     </div>
     ${e.password_hash ? '<label><input type="checkbox" name="clearPassword" style="width:auto;display:inline;"> Remove existing password</label>' : ''}
+    <label>Icon</label>
+    <select name="iconChoice">
+      <option value="none" ${iconChoiceFor(e) === 'none' ? 'selected' : ''}>No icon</option>
+      <option value="preset-fist" ${iconChoiceFor(e) === 'preset-fist' ? 'selected' : ''}>Preset: Zombie fist</option>
+      <option value="preset-map" ${iconChoiceFor(e) === 'preset-map' ? 'selected' : ''}>Preset: Map</option>
+      <option value="preset-question" ${iconChoiceFor(e) === 'preset-question' ? 'selected' : ''}>Preset: Question mark</option>
+      <option value="custom" ${iconChoiceFor(e) === 'custom' ? 'selected' : ''}>Custom image</option>
+    </select>
+    <input type="file" name="iconFile" accept="image/*" style="display:${iconChoiceFor(e) === 'custom' ? 'block' : 'none'};">
+    <p class="meta">Leave "Custom image" selected with no new file chosen to keep the current custom icon.</p>
     <button type="submit">Save changes</button>
     <button type="button" class="danger deleteBtn">Delete</button>
   `;
+  form.querySelector('select[name=iconChoice]').addEventListener('change', (ev) => {
+    form.querySelector('input[name=iconFile]').style.display = ev.target.value === 'custom' ? 'block' : 'none';
+  });
   form.addEventListener('submit', (ev) => handleEdit(ev, e));
   form.querySelector('.deleteBtn').addEventListener('click', () => handleDelete(e));
   details.appendChild(form);
@@ -292,6 +322,22 @@ async function handleEdit(ev, oldEntry) {
     } else if (password) {
       entries[idx].password_hash = await sha256Hex(password);
     }
+
+    const iconChoice = form.iconChoice.value;
+    if (iconChoice === 'none') {
+      entries[idx].icon = null;
+    } else if (PRESET_ICONS[iconChoice]) {
+      entries[idx].icon = PRESET_ICONS[iconChoice];
+    } else if (iconChoice === 'custom' && form.iconFile.files[0]) {
+      const icon = form.iconFile.files[0];
+      const iconExt = (icon.name.split('.').pop() || 'png');
+      const iconPath = `icons/${oldEntry.id}_icon.${iconExt}`;
+      const iconB64 = await fileToBase64(icon);
+      await commitFile(iconPath, iconB64, `Update icon for ${name}`);
+      entries[idx].icon = iconPath;
+    }
+    // else: "custom" with no new file picked — leave the existing icon as-is
+
     await saveFilesJson(entries, sha);
     refreshList();
   } catch (e) {

@@ -50,8 +50,15 @@
             <input type="password" id="addPassword">
           </div>
         </div>
-        <label>Icon (optional image)</label>
-        <input type="file" id="addIcon" accept="image/*">
+        <label>Icon</label>
+        <select id="addIconChoice">
+          <option value="none">No icon</option>
+          <option value="preset-fist">Preset: Zombie fist</option>
+          <option value="preset-map">Preset: Map</option>
+          <option value="preset-question">Preset: Question mark</option>
+          <option value="custom">Upload my own image</option>
+        </select>
+        <input type="file" id="addIcon" accept="image/*" style="display:none;">
         <button type="submit">Add file</button>
       </form>
     </fieldset>
