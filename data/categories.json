@@ -14,5 +14,9 @@
   {
     "id": "for-sl-2",
     "name": "För SL"
+  },
+  {
+    "id": "test",
+    "name": "Test"
   }
 ]
