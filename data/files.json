@@ -75,5 +75,16 @@
     "file": "files/0ffacc51f064429d.pdf",
     "icon": "icons/preset-map.svg",
     "created": 1790070002601
+  },
+  {
+    "id": "625702dac69744a1",
+    "name": "Hexagonkarta över Göteborg",
+    "description": "Hexagonkartan från HUVUDREGELBOKEN",
+    "color": "orange",
+    "category": "for-spelare",
+    "password_hash": null,
+    "file": "files/625702dac69744a1.pdf",
+    "icon": "icons/preset-map.svg",
+    "created": 1790070099071
   }
 ]
