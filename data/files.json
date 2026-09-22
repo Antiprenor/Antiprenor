@@ -53,5 +53,16 @@
     "file": "files/3ecdeb6621604304.pdf",
     "icon": "icons/preset-map.svg",
     "created": 1790069419107
+  },
+  {
+    "id": "43f846cc365a4994",
+    "name": "Kartor för SL till ODÖD KUST",
+    "description": "Här finner SL kartor för expansionen Odöd Kust",
+    "color": "red",
+    "category": "for-sl-2",
+    "password_hash": null,
+    "file": "files/43f846cc365a4994.pdf",
+    "icon": "icons/preset-map.svg",
+    "created": 1790069936652
   }
 ]
