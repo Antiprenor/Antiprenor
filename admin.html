@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin — Handout Archive</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <h1>Admin panel</h1>
+    <a href="index.html">&larr; back to archive</a>
+  </div>
+
+  <fieldset id="connectBox">
+    <legend>Connect to your GitHub repo</legend>
+    <label>GitHub username / organization</label>
+    <input type="text" id="ghOwner">
+    <label>Repository name</label>
+    <input type="text" id="ghRepo">
+    <label>Branch</label>
+    <input type="text" id="ghBranch" value="main">
+    <label>Personal access token (Contents: Read and write on this repo — stays only in this browser)</label>
+    <input type="password" id="ghToken">
+    <button id="connectBtn" type="button">Connect</button>
+    <p id="connectMsg" class="notice"></p>
+  </fieldset>
+
+  <div id="panel" style="display:none;">
+    <fieldset>
+      <legend>Add new file</legend>
+      <form id="addForm">
+        <label>File (PDF, etc.)</label>
+        <input type="file" id="addFile" required>
+        <label>Display name</label>
+        <input type="text" id="addName">
+        <label>Description</label>
+        <textarea id="addDesc" rows="2"></textarea>
+        <div class="row">
+          <div>
+            <label>Color</label>
+            <select id="addColor">
+              <option value="orange">Orange (general)</option>
+              <option value="red">Red (GM only)</option>
+            </select>
+          </div>
+          <div>
+            <label>Optional password</label>
+            <input type="password" id="addPassword">
+          </div>
+        </div>
+        <label>Icon (optional image)</label>
+        <input type="file" id="addIcon" accept="image/*">
+        <button type="submit">Add file</button>
+      </form>
+    </fieldset>
+
+    <h2 class="subhead">Existing files</h2>
+    <div id="fileList"></div>
+  </div>
+</div>
+<script src="admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+:root {
+  --bg: #0b0e0c;
+  --panel: #12160f;
+  --line: #263021;
+  --text: #cdd8c9;
+  --orange: #e07a1f;
+  --red: #b3221e;
+  --muted: #6b7268;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Courier New', monospace;
+  margin: 0;
+  padding: 2rem 1rem 4rem;
+}
+.wrap { max-width: 780px; margin: 0 auto; }
+.topbar { display: flex; justify-content: space-between; align-items: baseline; }
+h1 {
+  color: var(--orange);
+  text-shadow: 0 0 8px rgba(224,122,31,0.45);
+  letter-spacing: 0.04em;
+  font-size: 1.6rem;
+  margin: 0 0 0.6rem;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0.6rem;
+  flex: 1;
+}
+.topbar a { color: var(--muted); font-size: 0.85rem; text-decoration: none; white-space: nowrap; }
+.topbar a:hover { color: var(--orange); }
+.entry {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--orange);
+  border-radius: 4px;
+  padding: 0.9rem 1rem;
+  margin-bottom: 0.8rem;
+}
+.entry.red { border-left-color: var(--red); }
+.icon {
+  width: 48px; height: 48px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+.icon img { width: 100%; height: 100%; object-fit: cover; }
+.fallback { color: var(--muted); font-size: 1.4rem; }
+.body { flex: 1; min-width: 0; }
+.name { font-weight: bold; }
+.entry.red .name { color: #e88a86; }
+.desc { color: var(--muted); font-size: 0.9rem; margin: 0.2rem 0 0.5rem; }
+.btn {
+  display: inline-block;
+  color: var(--bg);
+  background: var(--orange);
+  padding: 0.3rem 0.7rem;
+  border-radius: 3px;
+  text-decoration: none;
+  font-size: 0.85rem;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+.entry.red .btn { background: var(--red); }
+.lockform { display: flex; gap: 0.4rem; margin-top: 0.3rem; flex-wrap: wrap; }
+.lockform input {
+  background: var(--bg); border: 1px solid var(--line); color: var(--text);
+  padding: 0.3rem 0.5rem; border-radius: 3px; font-family: inherit; font-size: 0.85rem;
+}
+.tag { font-size: 0.7rem; text-transform: uppercase; color: var(--muted); letter-spacing: 0.05em; margin-bottom: 0.3rem; }
+.empty { color: var(--muted); font-style: italic; }
+.notice { color: var(--orange); }
+
+fieldset { border: 1px solid var(--line); border-radius: 6px; margin-bottom: 1.5rem; padding: 1rem; }
+legend { color: var(--orange); padding: 0 0.4rem; }
+label { display: block; font-size: 0.8rem; color: var(--muted); margin-top: 0.6rem; }
+input[type=text], input[type=password], textarea {
+  width: 100%; background: var(--panel); border: 1px solid var(--line); color: var(--text);
+  padding: 0.4rem; font-family: inherit; margin-top: 0.2rem; border-radius: 3px;
+}
+input[type=file] { margin-top: 0.3rem; color: var(--text); width: 100%; }
+select {
+  background: var(--panel); color: var(--text); border: 1px solid var(--line);
+  padding: 0.35rem; margin-top: 0.2rem; width: 100%;
+}
+button {
+  margin-top: 1rem; background: var(--orange); color: var(--bg); border: none;
+  padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-family: inherit;
+}
+button.danger { background: var(--red); margin-left: 0.5rem; }
+.row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.row > * { flex: 1; min-width: 140px; }
+.subhead { color: var(--muted); font-size: 1rem; }
+summary { cursor: pointer; font-weight: bold; }
+.meta { color: var(--muted); font-size: 0.8rem; font-weight: normal; }
