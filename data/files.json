@@ -9,5 +9,16 @@
     "file": "files/3c7cb8eb6f664dc1.pdf",
     "icon": "icons/preset-fist.svg",
     "created": 1790066667462
+  },
+  {
+    "id": "bbc3afc76cb04686",
+    "name": "Handouts till Plågad Pist",
+    "description": "Innehåller hexagonkarta, andra kartor och smått och gott.",
+    "color": "red",
+    "category": "for-sl-2",
+    "password_hash": null,
+    "file": "files/bbc3afc76cb04686.pdf",
+    "icon": "icons/preset-map.svg",
+    "created": 1790067396690
   }
 ]
