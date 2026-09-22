@@ -130,5 +130,16 @@
     "file": "files/4bd7dadac4f74819.pdf",
     "icon": "icons/preset-question.svg",
     "created": 1790072115358
+  },
+  {
+    "id": "286a5389cff54567",
+    "name": "Karta över Linköping ur Diesel & Död",
+    "description": "Lischööping!",
+    "color": "orange",
+    "category": "for-spelare",
+    "password_hash": null,
+    "file": "files/286a5389cff54567.pdf",
+    "icon": "icons/preset-map.svg",
+    "created": 1790072189018
   }
 ]
