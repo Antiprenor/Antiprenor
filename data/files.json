@@ -20,5 +20,16 @@
     "file": "files/bbc3afc76cb04686.pdf",
     "icon": "icons/preset-map.svg",
     "created": 1790067396690
+  },
+  {
+    "id": "92b3e88bf69f4e08",
+    "name": "Handouts till Herdens historia i Plågad Pist",
+    "description": "Här finner SL övriga handouts till Herdens historia ur Plågad pist. Lösenordet är det samma, namnet på prästen i Melnik, se sid 105.  Case sensetive",
+    "color": "orange",
+    "category": "for-sl-2",
+    "password_hash": "bb2cbc6539ec1caa273a7232b671335d0babd678cb4acb77d8e68597350b3e78",
+    "file": "files/92b3e88bf69f4e08.pdf",
+    "icon": "icons/preset-map.svg",
+    "created": 1790067627425
   }
 ]
