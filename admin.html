@@ -1,69 +1,84 @@
 <!doctype html>
-<html lang="en">
+<html lang="sv">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Admin — Handout Archive</title>
+<title>Adminpanel — Arkivet</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="wrap">
+  <img src="assets/logo.png" alt="Skjut dom i huvudet – Arkivet" class="logo small">
   <div class="topbar">
-    <h1>Admin panel</h1>
-    <a href="index.html">&larr; back to archive</a>
+    <h1>Adminpanel</h1>
+    <a href="index.html">&larr; till arkivet</a>
   </div>
 
   <fieldset id="connectBox">
-    <legend>Connect to your GitHub repo</legend>
-    <label>GitHub username / organization</label>
+    <legend>Anslut till ditt GitHub-repo</legend>
+    <label>GitHub-användarnamn / organisation</label>
     <input type="text" id="ghOwner">
-    <label>Repository name</label>
+    <label>Repository-namn</label>
     <input type="text" id="ghRepo">
     <label>Branch</label>
     <input type="text" id="ghBranch" value="main">
-    <label>Personal access token (Contents: Read and write on this repo — stays only in this browser)</label>
+    <label>Personal access token (måste ha Contents: Read and write på detta repo — sparas bara i den här webbläsaren)</label>
     <input type="password" id="ghToken">
-    <button id="connectBtn" type="button">Connect</button>
+    <button id="connectBtn" type="button">Anslut</button>
     <p id="connectMsg" class="notice"></p>
   </fieldset>
 
   <div id="panel" style="display:none;">
     <fieldset>
-      <legend>Add new file</legend>
+      <legend>Hantera kategorier</legend>
+      <div id="categoryList"></div>
+      <label>Ny kategori</label>
+      <div class="row">
+        <input type="text" id="newCategoryName" placeholder="Kategorinamn">
+        <button type="button" id="addCategoryBtn">Lägg till</button>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Lägg till ny fil</legend>
       <form id="addForm">
-        <label>File (PDF, etc.)</label>
+        <label>Fil (PDF etc.)</label>
         <input type="file" id="addFile" required>
-        <label>Display name</label>
+        <label>Visningsnamn</label>
         <input type="text" id="addName">
-        <label>Description</label>
+        <label>Beskrivning</label>
         <textarea id="addDesc" rows="2"></textarea>
         <div class="row">
           <div>
-            <label>Color</label>
+            <label>Färg</label>
             <select id="addColor">
-              <option value="orange">Orange (general)</option>
-              <option value="red">Red (GM only)</option>
+              <option value="orange">Orange (allmänt)</option>
+              <option value="red">Röd (endast SL)</option>
             </select>
           </div>
           <div>
-            <label>Optional password</label>
+            <label>Valfritt lösenord</label>
             <input type="password" id="addPassword">
           </div>
         </div>
-        <label>Icon</label>
+        <label>Kategori</label>
+        <select id="addCategorySelect">
+          <option value="">Ingen</option>
+        </select>
+        <label>Ikon</label>
         <select id="addIconChoice">
-          <option value="none">No icon</option>
-          <option value="preset-fist">Preset: Zombie fist</option>
-          <option value="preset-map">Preset: Map</option>
-          <option value="preset-question">Preset: Question mark</option>
-          <option value="custom">Upload my own image</option>
+          <option value="none">Ingen ikon</option>
+          <option value="preset-fist">Standard: Zombienäve</option>
+          <option value="preset-map">Standard: Karta</option>
+          <option value="preset-question">Standard: Frågetecken</option>
+          <option value="custom">Ladda upp egen bild</option>
         </select>
         <input type="file" id="addIcon" accept="image/*" style="display:none;">
-        <button type="submit">Add file</button>
+        <button type="submit">Lägg till fil</button>
       </form>
     </fieldset>
 
-    <h2 class="subhead">Existing files</h2>
+    <h2 class="subhead">Befintliga filer</h2>
     <div id="fileList"></div>
   </div>
 </div>
