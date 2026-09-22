@@ -119,3 +119,46 @@ function renderLock(container, e) {
 }
 
 load();
+async function startTransmissions() {
+  const el = document.getElementById('transmissionLine');
+  if (!el) return;
+
+  let lines = [];
+  try {
+    const res = await fetch('data/zombietips.txt?_=' + Date.now());
+    const text = await res.text();
+    lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  } catch (e) {
+    el.textContent = '– ingen signal –';
+    return;
+  }
+  if (!lines.length) {
+    el.textContent = '– ingen signal –';
+    return;
+  }
+
+  let lastIndex = -1;
+  function pickLine() {
+    if (lines.length === 1) return lines[0];
+    let i;
+    do { i = Math.floor(Math.random() * lines.length); } while (i === lastIndex);
+    lastIndex = i;
+    return lines[i];
+  }
+
+  function showNext() {
+    el.textContent = pickLine();
+    el.classList.remove('leaving');
+    el.classList.add('entering');
+    void el.offsetWidth; // force reflow so the enter transition actually plays
+    el.classList.remove('entering');
+  }
+
+  showNext();
+  setInterval(() => {
+    el.classList.add('leaving');
+    setTimeout(showNext, 600);
+  }, 6000);
+}
+
+startTransmissions();
