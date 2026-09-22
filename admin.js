@@ -41,8 +41,25 @@ function fileToBase64(file) {
   });
 }
 
-async function gh(method, path, body) {
-  const url = `https://api.github.com/repos/${ghConfig.owner}/${ghConfig.repo}/contents/${path}`;
+// Adds a hint to the common "token doesn't have permission" error so it's
+// actionable instead of just cryptic.
+function explainError(e) {
+  if (/resource not accessible/i.test(e.message)) {
+    return new Error(
+      e.message +
+      ' — check that your token has "Contents: Read and write" on this repo, ' +
+      'that the repo has at least one commit already, and (if it\'s an org repo) ' +
+      'that the org has approved the token.'
+    );
+  }
+  return e;
+}
+
+// Low-level request helper. `base` picks which API family: "contents/..."
+// for the simple file API (small files, up to 1MB), or "git/..." for the
+// Git Data API (used for large files, see commitFile below).
+async function gh(pathWithinRepo, method, body) {
+  const url = `https://api.github.com/repos/${ghConfig.owner}/${ghConfig.repo}/${pathWithinRepo}`;
   const res = await fetch(url, {
     method,
     headers: {
@@ -54,16 +71,44 @@ async function gh(method, path, body) {
   if (res.status === 404) return null;
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || `GitHub API error (${res.status})`);
+    throw explainError(new Error(err.message || `GitHub API error (${res.status})`));
   }
   return res.json();
 }
 
-const getFile = (path) => gh('GET', path);
-const putFile = (path, base64Content, message, sha) =>
-  gh('PUT', path, { message, content: base64Content, branch: ghConfig.branch, sha: sha || undefined });
+const getFile = (path) => gh(`contents/${path}`, 'GET');
 const deleteFile = (path, message, sha) =>
-  gh('DELETE', path, { message, sha, branch: ghConfig.branch });
+  gh(`contents/${path}`, 'DELETE', { message, sha, branch: ghConfig.branch });
+
+// Simple write path — fine for small text files (files.json is a few KB).
+const putFile = (path, base64Content, message, sha) =>
+  gh(`contents/${path}`, 'PUT', { message, content: base64Content, branch: ghConfig.branch, sha: sha || undefined });
+
+// Full write path for anything that might exceed 1MB (PDFs, icons):
+// create a blob, graft it into a new tree off the current commit, commit
+// that tree, then move the branch pointer to the new commit. No size cap
+// from GitHub's side other than its general ~100MB per-file git limit.
+async function commitFile(path, base64Content, message) {
+  const ref = await gh(`git/ref/heads/${ghConfig.branch}`, 'GET');
+  if (!ref) throw new Error(`Branch "${ghConfig.branch}" not found — does the repo have at least one commit?`);
+  const latestCommitSha = ref.object.sha;
+
+  const commit = await gh(`git/commits/${latestCommitSha}`, 'GET');
+  const baseTreeSha = commit.tree.sha;
+
+  const blob = await gh('git/blobs', 'POST', { content: base64Content, encoding: 'base64' });
+
+  const tree = await gh('git/trees', 'POST', {
+    base_tree: baseTreeSha,
+    tree: [{ path, mode: '100644', type: 'blob', sha: blob.sha }]
+  });
+
+  const newCommit = await gh('git/commits', 'POST', {
+    message, tree: tree.sha, parents: [latestCommitSha]
+  });
+
+  await gh(`git/refs/heads/${ghConfig.branch}`, 'PATCH', { sha: newCommit.sha });
+}
 
 async function getFilesJson() {
   const res = await getFile('data/files.json');
@@ -137,7 +182,7 @@ async function handleAdd(ev) {
     const ext = (file.name.split('.').pop() || 'pdf');
     const path = `files/${id}.${ext}`;
     const b64 = await fileToBase64(file);
-    await putFile(path, b64, `Add ${name || file.name}`);
+    await commitFile(path, b64, `Add ${name || file.name}`);
 
     let iconPath = null;
     if (iconInput.files[0]) {
@@ -145,7 +190,7 @@ async function handleAdd(ev) {
       const iconExt = (icon.name.split('.').pop() || 'png');
       iconPath = `icons/${id}_icon.${iconExt}`;
       const iconB64 = await fileToBase64(icon);
-      await putFile(iconPath, iconB64, `Add icon for ${name || file.name}`);
+      await commitFile(iconPath, iconB64, `Add icon for ${name || file.name}`);
     }
 
     const passwordHash = password ? await sha256Hex(password) : null;
