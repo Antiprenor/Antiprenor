@@ -84,31 +84,7 @@ h1 {
   font-family: inherit; font-size: 0.85rem;
 }
 .tabbtn.active { background: var(--orange); color: var(--bg); border-color: var(--orange); font-weight: bold; }
-.empty { color: var(--muted); font-style: italic; }
-.notice { color: var(--orange); }
 
-fieldset { border: 1px solid var(--line); border-radius: 6px; margin-bottom: 1.5rem; padding: 1rem; }
-legend { color: var(--orange); padding: 0 0.4rem; }
-label { display: block; font-size: 0.8rem; color: var(--muted); margin-top: 0.6rem; }
-input[type=text], input[type=password], textarea {
-  width: 100%; background: var(--panel); border: 1px solid var(--line); color: var(--text);
-  padding: 0.4rem; font-family: inherit; margin-top: 0.2rem; border-radius: 3px;
-}
-input[type=file] { margin-top: 0.3rem; color: var(--text); width: 100%; }
-select {
-  background: var(--panel); color: var(--text); border: 1px solid var(--line);
-  padding: 0.35rem; margin-top: 0.2rem; width: 100%;
-}
-button {
-  margin-top: 1rem; background: var(--orange); color: var(--bg); border: none;
-  padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-family: inherit;
-}
-button.danger { background: var(--red); margin-left: 0.5rem; }
-.row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-.row > * { flex: 1; min-width: 140px; }
-.subhead { color: var(--muted); font-size: 1rem; }
-summary { cursor: pointer; font-weight: bold; }
-.meta { color: var(--muted); font-size: 0.8rem; font-weight: normal; }
 .transmission-box {
   background: var(--panel);
   border: 1px solid var(--line);
@@ -159,3 +135,28 @@ summary { cursor: pointer; font-weight: bold; }
 }
 .transmission-line.entering { transform: translateY(100%); opacity: 0; }
 .transmission-line.leaving { transform: translateY(-100%); opacity: 0; }
+.empty { color: var(--muted); font-style: italic; }
+.notice { color: var(--orange); }
+
+fieldset { border: 1px solid var(--line); border-radius: 6px; margin-bottom: 1.5rem; padding: 1rem; }
+legend { color: var(--orange); padding: 0 0.4rem; }
+label { display: block; font-size: 0.8rem; color: var(--muted); margin-top: 0.6rem; }
+input[type=text], input[type=password], textarea {
+  width: 100%; background: var(--panel); border: 1px solid var(--line); color: var(--text);
+  padding: 0.4rem; font-family: inherit; margin-top: 0.2rem; border-radius: 3px;
+}
+input[type=file] { margin-top: 0.3rem; color: var(--text); width: 100%; }
+select {
+  background: var(--panel); color: var(--text); border: 1px solid var(--line);
+  padding: 0.35rem; margin-top: 0.2rem; width: 100%;
+}
+button {
+  margin-top: 1rem; background: var(--orange); color: var(--bg); border: none;
+  padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-family: inherit;
+}
+button.danger { background: var(--red); margin-left: 0.5rem; }
+.row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.row > * { flex: 1; min-width: 140px; }
+.subhead { color: var(--muted); font-size: 1rem; }
+summary { cursor: pointer; font-weight: bold; }
+.meta { color: var(--muted); font-size: 0.8rem; font-weight: normal; }

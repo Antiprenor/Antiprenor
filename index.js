@@ -119,6 +119,7 @@ function renderLock(container, e) {
 }
 
 load();
+
 async function startTransmissions() {
   const el = document.getElementById('transmissionLine');
   if (!el) return;

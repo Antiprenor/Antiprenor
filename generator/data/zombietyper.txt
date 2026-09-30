@@ -1,0 +1,8 @@
+Vanlig | 4 | 2 | +4 | +3 | 1T10 OB | Attack: Slita 1T6 OB+3 (smittar ej)
+Äcklig | 3 | 2 | +5 | +4 | 1T10 OB+1 | Skräck: TV 15. Skada: 5 på Stabilitet.
+Bepansrad | 4 | 7 | +5 | +3 | 1T10 OB+2 | Har hjälm som ruttnat fast, men teoretiskt kan den avlägsnas. Attack: Slita 1T6 OB+3 (smittar ej)
+Söndrigt barn | 2 | 1 | +6 | +1 | 1T10 | Skräck: TV 18. Skada: 3 på Stabilitet.
+Hund | 4 | 3 | +8 | +4 | 1T6 OB+4 | Kan springhoppa från nära och attackera som en Handling. Kan också springa, då beräknas hunden ha Fysik 7. Skräck TV 12. Skada 4 på Stabilitet.
+Ko/älg/häst | 8 | 2 | +3 | +3 | 1T6 OB+5 | Stångas. Skada 1T4 OB. Offret faller omkull.
+Uppsvullen/flytare | 2 | 2 | 0 | +2 | 1T10 OB | Vid träff någon annanstans på kroppen än huvudet exploderar zombien och skvätter på alla som står inom Nära avstånd. Dessa måste klara ett Test mot Vilja TV 10 för att inte förlora nästa Handling för att behöva torka bort splattret från ansiktet.
+Fetma | 10 | 5 | -1 | +2 | 1T10 OB | Zombien verkar ha käkat rejält med kött och blivit väldigt stor. Attack: LÄGGA SIG PÅ. Offret måste klara ett motståndsslag på Fysik mot zombiens +8, annars hamnar den under zombien och kan inte röra sig eller göra något annat innan offret klarar ett sådant motståndsslag. Attacken smittar inte, och den fete kan inte bita, den når helt enkelt inte.

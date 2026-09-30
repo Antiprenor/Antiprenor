@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zombiegenerator — Arkivet</title>
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="generator.css">
+</head>
+<body>
+<div class="wrap">
+  <img src="../assets/logo.png" alt="Skjut dom i huvudet – Arkivet" class="logo small">
+  <div class="topbar"><a href="../index.html">&larr; till arkivet</a></div>
+
+  <div class="gen-box">
+    <div class="gen-header">
+      <span class="gen-corner">┌</span> ZOMBIEGENERATOR <span class="gen-corner">┐</span>
+    </div>
+    <button id="rollBtn" class="gen-roll-btn" type="button">SLUMPA ZOMBIE</button>
+
+    <div id="result" class="gen-result" style="display:none;">
+      <div class="gen-flavor-label">VA HAR VI HÄR'RÅ?</div>
+      <p id="flavorText" class="gen-flavor-text"></p>
+
+      <div class="gen-stats">
+        <div class="gen-stat">
+          <span class="gen-stat-label">Typ</span>
+          <span id="statTyp" class="gen-stat-value"></span>
+        </div>
+        <div class="gen-stat gen-stat-tal">
+          <span class="gen-stat-label">Tål</span>
+          <div class="gen-tal-control">
+            <button type="button" id="talMinus" class="gen-arrow">&minus;</button>
+            <span id="statTal" class="gen-stat-value"></span>
+            <button type="button" id="talPlus" class="gen-arrow">+</button>
+          </div>
+        </div>
+        <div class="gen-stat">
+          <span class="gen-stat-label">Skydd</span>
+          <span id="statSkydd" class="gen-stat-value"></span>
+        </div>
+        <div class="gen-stat">
+          <span class="gen-stat-label">Initiativ</span>
+          <span id="statInit" class="gen-stat-value"></span>
+        </div>
+        <div class="gen-stat">
+          <span class="gen-stat-label">Bråka</span>
+          <span id="statBraka" class="gen-stat-value"></span>
+        </div>
+        <div class="gen-stat">
+          <span class="gen-stat-label">Skada bett</span>
+          <span id="statBett" class="gen-stat-value"></span>
+        </div>
+      </div>
+
+      <div class="gen-block">
+        <div class="gen-block-label">Övrigt</div>
+        <p id="statOvrigt" class="gen-block-text"></p>
+      </div>
+
+      <div class="gen-block">
+        <div class="gen-block-label">Loot</div>
+        <p id="lootText" class="gen-block-text"></p>
+      </div>
+
+      <div class="gen-block gen-block-extra">
+        <div class="gen-block-label">✦ Övrigt 2</div>
+        <p id="ovrigt2Text" class="gen-block-text"></p>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="generator.js"></script>
+</body>
+</html>
