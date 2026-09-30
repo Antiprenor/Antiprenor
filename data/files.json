@@ -163,5 +163,16 @@
     "file": "files/90ec4224363446f8.pdf",
     "icon": "icons/preset-map.svg",
     "created": 1790072327480
+  },
+  {
+    "id": "0dc72e2a20864ce6",
+    "name": "Rollformulär",
+    "description": "Svartvitt rollformulär från reviderade regelboken, av Erik Malm",
+    "color": "orange",
+    "category": "karaktarsblad",
+    "password_hash": null,
+    "file": "files/0dc72e2a20864ce6.pdf",
+    "icon": "icons/preset-fist.svg",
+    "created": 1790769878046
   }
 ]
